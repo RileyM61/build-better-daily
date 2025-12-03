@@ -68,8 +68,8 @@ export default function EditPostPage({ params }: PageProps) {
     setMessage(null)
 
     const supabase = createBrowserClient()
-    const { error } = await supabase
-      .from('posts')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('posts') as any)
       .update({
         title,
         slug,

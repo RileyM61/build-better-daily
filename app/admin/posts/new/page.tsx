@@ -55,8 +55,8 @@ export default function NewPostPage() {
     setMessage(null)
 
     const supabase = createBrowserClient()
-    const { data, error } = await supabase
-      .from('posts')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from('posts') as any)
       .insert({
         title,
         slug,
