@@ -10,6 +10,13 @@ interface BookRecommendationProps {
   affiliateTag: string
 }
 
+// Generate Amazon search URL for more reliable linking
+function getAmazonUrl(book: Book, affiliateTag: string): string {
+  const searchQuery = encodeURIComponent(`${book.title} ${book.author} book`)
+  const tag = affiliateTag ? `&tag=${affiliateTag}` : ''
+  return `https://www.amazon.com/s?k=${searchQuery}${tag}`
+}
+
 export default function BookRecommendation({ books, affiliateTag }: BookRecommendationProps) {
   if (!books || books.length === 0) return null
 
@@ -28,7 +35,7 @@ export default function BookRecommendation({ books, affiliateTag }: BookRecommen
         {books.map((book, index) => (
           <a
             key={index}
-            href={`https://www.amazon.com/dp/${book.asin}?tag=${affiliateTag}`}
+            href={getAmazonUrl(book, affiliateTag)}
             target="_blank"
             rel="noopener noreferrer"
             className="group block p-4 rounded-lg bg-wip-card border border-wip-border hover:border-wip-gold/50 transition-all duration-300"
