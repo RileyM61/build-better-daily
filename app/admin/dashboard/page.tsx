@@ -63,7 +63,7 @@ export default function AdminDashboard() {
     const supabase = createBrowserClient()
     const { error } = await supabase
       .from('posts')
-      .update({ published: !currentStatus })
+      .update({ published: !currentStatus } as { published: boolean })
       .eq('id', id)
 
     if (error) {
