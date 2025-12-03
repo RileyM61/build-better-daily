@@ -47,8 +47,8 @@ export default function AdminDashboard() {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return
 
     const supabase = createBrowserClient()
-    const { error } = await supabase
-      .from('posts')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('posts') as any)
       .delete()
       .eq('id', id)
 
@@ -61,9 +61,9 @@ export default function AdminDashboard() {
 
   const togglePublished = async (id: string, currentStatus: boolean) => {
     const supabase = createBrowserClient()
-    const { error } = await supabase
-      .from('posts')
-      .update({ published: !currentStatus } as { published: boolean })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('posts') as any)
+      .update({ published: !currentStatus })
       .eq('id', id)
 
     if (error) {
