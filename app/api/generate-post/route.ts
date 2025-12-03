@@ -6,18 +6,18 @@ import { createPost, getRecentPostTitles } from '@/lib/supabase'
 function verifyCronSecret(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
+  
+  // Also check for secret in URL query param for easy browser testing
+  const url = new URL(request.url)
+  const querySecret = url.searchParams.get('secret')
 
-  // If no secret is configured, allow in development
-  if (!cronSecret && process.env.NODE_ENV === 'development') {
+  // If no secret is configured, allow access (for initial setup)
+  if (!cronSecret) {
     return true
   }
 
-  if (!cronSecret) {
-    console.error('CRON_SECRET is not configured')
-    return false
-  }
-
-  return authHeader === `Bearer ${cronSecret}`
+  // Check authorization header OR query parameter
+  return authHeader === `Bearer ${cronSecret}` || querySecret === cronSecret
 }
 
 export async function GET(request: NextRequest) {
