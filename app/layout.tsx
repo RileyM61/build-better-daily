@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'WIP Wisdom | Construction Business Insights',
-  description: 'Time-tested principles, frameworks, and solutions for building successful construction companies. Master your WIP schedule, cash flow, and project management.',
-  keywords: ['construction', 'WIP', 'work in progress', 'construction management', 'cash flow', 'project management', 'contractor business'],
+  title: 'Build Better Daily | Construction Business Insights',
+  description: 'Clarity for construction company owners. Time-tested principles, frameworks, and real talk about cash flow, leadership, and building a business that works.',
+  keywords: ['construction', 'WIP', 'work in progress', 'construction management', 'cash flow', 'project management', 'contractor business', 'fractional CFO'],
 }
 
 export default function RootLayout({

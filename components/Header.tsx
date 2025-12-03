@@ -5,13 +5,18 @@ export default function Header() {
     <header className="border-b border-wip-border bg-wip-dark/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-4xl mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
-          <Link href="/" className="group flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-wip-gold to-wip-gold-dark rounded-lg flex items-center justify-center">
-              <span className="text-wip-dark font-bold text-sm">W</span>
+          <Link href="/" className="group flex items-center gap-3">
+            {/* Book Icon */}
+            <svg className="w-8 h-8 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" style={{display: 'none'}}/>
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" strokeWidth="2" fill="none"/>
+            </svg>
+            <div className="flex flex-col leading-tight">
+              <span className="text-lg font-bold text-gray-400 group-hover:text-gray-300 transition-colors">Build</span>
+              <span className="text-lg font-bold text-wip-gold group-hover:text-wip-gold-dark transition-colors -mt-1">Better</span>
+              <span className="text-lg font-bold text-gray-400 group-hover:text-gray-300 transition-colors -mt-1">Daily</span>
             </div>
-            <span className="text-xl font-semibold text-white group-hover:text-wip-gold transition-colors">
-              WIP Wisdom
-            </span>
           </Link>
           <a
             href="https://wip-insights.com"

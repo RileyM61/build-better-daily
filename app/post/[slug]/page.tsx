@@ -26,12 +26,12 @@ export async function generateMetadata({ params }: PostPageProps) {
   
   if (!post) {
     return {
-      title: 'Post Not Found | WIP Wisdom',
+      title: 'Post Not Found | Build Better Daily',
     }
   }
 
   return {
-    title: `${post.title} | WIP Wisdom`,
+    title: `${post.title} | Build Better Daily`,
     description: post.excerpt,
   }
 }

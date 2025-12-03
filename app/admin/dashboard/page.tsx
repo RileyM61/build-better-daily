@@ -88,10 +88,11 @@ export default function AdminDashboard() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-wip-gold to-wip-gold-dark rounded-lg flex items-center justify-center">
-                <span className="text-wip-dark font-bold text-sm">W</span>
-              </div>
-              <span className="text-lg font-semibold text-white">WIP Wisdom</span>
+              <svg className="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              <span className="text-lg font-semibold text-white">Build Better Daily</span>
             </Link>
             <span className="text-wip-muted">/ Admin</span>
           </div>

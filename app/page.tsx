@@ -18,15 +18,15 @@ export default async function HomePage() {
           <div className="max-w-4xl mx-auto px-4 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-wip-gold/10 border border-wip-gold/20 mb-6">
               <span className="w-2 h-2 bg-wip-gold rounded-full animate-pulse"></span>
-              <span className="text-wip-gold text-sm font-medium">Construction Business Insights</span>
+              <span className="text-wip-gold text-sm font-medium">Clarity for Construction Leaders</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Build a Better<br />
-              <span className="text-wip-gold">Construction Business</span>
+              Build <span className="text-wip-gold">Better</span><br />
+              Daily
             </h1>
             <p className="text-lg md:text-xl text-wip-muted max-w-2xl mx-auto leading-relaxed">
-              Time-tested principles, frameworks, and solutions for construction company owners. 
-              Master your WIP schedule, improve cash flow, and build a sustainable business.
+              Real talk about cash flow, leadership, and building a construction business that actually works. 
+              No fluff. No jargon. Just clarity.
             </p>
           </div>
         </section>

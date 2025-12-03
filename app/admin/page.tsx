@@ -50,11 +50,12 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-wip-dark flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-wip-gold to-wip-gold-dark rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-wip-dark font-bold text-xl">W</span>
-          </div>
-          <h1 className="text-2xl font-bold text-white">Admin Login</h1>
-          <p className="text-wip-muted mt-2">Sign in to manage your blog</p>
+          <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <h1 className="text-2xl font-bold text-white">Build Better Daily</h1>
+          <p className="text-wip-muted mt-2">Admin Login</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
