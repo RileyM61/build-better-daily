@@ -76,11 +76,25 @@ Please respond with a JSON object in this exact format:
 }
 
 IMPORTANT RULES:
-1. Use ONLY real books that exist on Amazon with accurate ASINs
-2. Choose books specifically relevant to the topic you're writing about
-3. Mix classic business books with construction-specific titles
-4. The content should be genuinely helpful and educational
-5. Return ONLY the JSON object, no other text`
+1. Choose 3 books from this verified list that are MOST relevant to your topic:
+   - "Profit First for Contractors" by Shawn Van Dyke (ASIN: 1642011118)
+   - "Construction Accounting & Financial Management" by Steven Peterson (ASIN: 0135232996)
+   - "The E-Myth Contractor" by Michael Gerber (ASIN: 0060938463)
+   - "Markup & Profit: A Contractor's Guide" by Michael Stone (ASIN: 1928580017)
+   - "Running a Successful Construction Company" by David Gerstel (ASIN: 1561585300)
+   - "The Contractor's Guide to QuickBooks" by Karen Mitchell (ASIN: 1572182091)
+   - "Construction Management JumpStart" by Barbara Jackson (ASIN: 1119451000)
+   - "Built to Sell" by John Warrillow (ASIN: 1591845823)
+   - "Traction" by Gino Wickman (ASIN: 1936661837)
+   - "The Goal" by Eliyahu Goldratt (ASIN: 0884271951)
+   - "Good to Great" by Jim Collins (ASIN: 0066620996)
+   - "The Lean Builder" by Joe Donarumo (ASIN: 1734108509)
+   - "Managing the Profitable Construction Business" by Thomas Schleifer (ASIN: 0470932961)
+   - "Financial Management and Accounting Fundamentals for Construction" by Daniel Halpin (ASIN: 0470182717)
+   - "The Wealthy Contractor" by Brian Kaskavalciyan (ASIN: 1734928204)
+2. Select the 3 books most relevant to the specific topic of your blog post
+3. The content should be genuinely helpful and educational
+4. Return ONLY the JSON object, no other text`
       }
     ],
     system: SYSTEM_PROMPT,
