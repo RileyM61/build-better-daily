@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --wip-dark: #0a0f1a;
+  --wip-navy: #111827;
+  --wip-card: #1a2332;
+  --wip-border: #2a3544;
+  --wip-gold: #f59e0b;
+  --wip-gold-dark: #d97706;
+  --wip-text: #e5e7eb;
+  --wip-muted: #9ca3af;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: linear-gradient(180deg, var(--wip-dark) 0%, var(--wip-navy) 100%);
+  min-height: 100vh;
+}
+
+/* Prose styling for blog content */
+.prose {
+  @apply text-wip-text leading-relaxed;
+}
+
+.prose h1 {
+  @apply text-3xl md:text-4xl font-bold text-white mb-6 mt-8;
+}
+
+.prose h2 {
+  @apply text-2xl md:text-3xl font-semibold text-white mb-4 mt-8;
+}
+
+.prose h3 {
+  @apply text-xl md:text-2xl font-semibold text-white mb-3 mt-6;
+}
+
+.prose p {
+  @apply mb-4 text-wip-text;
+}
+
+.prose ul, .prose ol {
+  @apply mb-4 pl-6;
+}
+
+.prose li {
+  @apply mb-2 text-wip-text;
+}
+
+.prose ul li {
+  @apply list-disc;
+}
+
+.prose ol li {
+  @apply list-decimal;
+}
+
+.prose strong {
+  @apply text-white font-semibold;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-wip-gold pl-4 italic text-wip-muted my-4;
+}
+
+.prose code {
+  @apply bg-wip-card px-2 py-1 rounded text-wip-gold text-sm;
+}
+
+.prose pre {
+  @apply bg-wip-card p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.prose a {
+  @apply text-wip-gold hover:text-wip-gold-dark underline;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+  background: var(--wip-gold);
+  color: var(--wip-dark);
+}
+
