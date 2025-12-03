@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -15,7 +15,6 @@ interface PageProps {
 
 export default function EditPostPage({ params }: PageProps) {
   const { id } = use(params)
-  const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
@@ -30,17 +29,7 @@ export default function EditPostPage({ params }: PageProps) {
   const [published, setPublished] = useState(false)
   const [books, setBooks] = useState<Book[]>([])
 
-  useEffect(() => {
-    getSession().then((session) => {
-      if (!session) {
-        router.push('/admin')
-      } else {
-        fetchPost()
-      }
-    })
-  }, [router, id])
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     const supabase = createBrowserClient()
     const { data, error } = await supabase
       .from('posts')
@@ -55,7 +44,6 @@ export default function EditPostPage({ params }: PageProps) {
     }
 
     const postData = data as Post
-    setPost(postData)
     setTitle(postData.title)
     setSlug(postData.slug)
     setExcerpt(postData.excerpt)
@@ -63,7 +51,17 @@ export default function EditPostPage({ params }: PageProps) {
     setPublished(postData.published)
     setBooks(postData.books || [])
     setLoading(false)
-  }
+  }, [id, router])
+
+  useEffect(() => {
+    getSession().then((session) => {
+      if (!session) {
+        router.push('/admin')
+      } else {
+        fetchPost()
+      }
+    })
+  }, [router, fetchPost])
 
   const handleSave = async () => {
     setSaving(true)
