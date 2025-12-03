@@ -1,0 +1,290 @@
+'use client'
+
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { getSession } from '@/lib/auth'
+import { createBrowserClient } from '@/lib/supabase'
+import type { Post, Book } from '@/lib/supabase'
+
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default function EditPostPage({ params }: PageProps) {
+  const { id } = use(params)
+  const [post, setPost] = useState<Post | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const router = useRouter()
+
+  // Form state
+  const [title, setTitle] = useState('')
+  const [slug, setSlug] = useState('')
+  const [excerpt, setExcerpt] = useState('')
+  const [content, setContent] = useState('')
+  const [published, setPublished] = useState(false)
+  const [books, setBooks] = useState<Book[]>([])
+
+  useEffect(() => {
+    getSession().then((session) => {
+      if (!session) {
+        router.push('/admin')
+      } else {
+        fetchPost()
+      }
+    })
+  }, [router, id])
+
+  const fetchPost = async () => {
+    const supabase = createBrowserClient()
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error || !data) {
+      alert('Post not found')
+      router.push('/admin/dashboard')
+      return
+    }
+
+    const postData = data as Post
+    setPost(postData)
+    setTitle(postData.title)
+    setSlug(postData.slug)
+    setExcerpt(postData.excerpt)
+    setContent(postData.content)
+    setPublished(postData.published)
+    setBooks(postData.books || [])
+    setLoading(false)
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    setMessage(null)
+
+    const supabase = createBrowserClient()
+    const { error } = await supabase
+      .from('posts')
+      .update({
+        title,
+        slug,
+        excerpt,
+        content,
+        published,
+        books,
+      })
+      .eq('id', id)
+
+    if (error) {
+      setMessage({ type: 'error', text: 'Failed to save: ' + error.message })
+    } else {
+      setMessage({ type: 'success', text: 'Post saved successfully!' })
+    }
+    setSaving(false)
+  }
+
+  const updateBook = (index: number, field: keyof Book, value: string) => {
+    const newBooks = [...books]
+    newBooks[index] = { ...newBooks[index], [field]: value }
+    setBooks(newBooks)
+  }
+
+  const addBook = () => {
+    setBooks([...books, { title: '', author: '', asin: '', description: '' }])
+  }
+
+  const removeBook = (index: number) => {
+    setBooks(books.filter((_, i) => i !== index))
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-wip-dark flex items-center justify-center">
+        <div className="text-wip-muted">Loading...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-wip-dark">
+      {/* Header */}
+      <header className="border-b border-wip-border bg-wip-card sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin/dashboard" className="text-wip-muted hover:text-white transition-colors">
+              ← Back to Dashboard
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="px-4 py-2 bg-wip-dark border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
+            >
+              {showPreview ? 'Edit' : 'Preview'}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Message */}
+      {message && (
+        <div className={`max-w-6xl mx-auto px-4 mt-4`}>
+          <div className={`px-4 py-3 rounded-lg text-sm ${
+            message.type === 'success' 
+              ? 'bg-green-500/10 border border-green-500/50 text-green-400'
+              : 'bg-red-500/10 border border-red-500/50 text-red-400'
+          }`}>
+            {message.text}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {showPreview ? (
+          /* Preview Mode */
+          <div className="bg-wip-card border border-wip-border rounded-xl p-8">
+            <h1 className="text-3xl font-bold text-white mb-4">{title}</h1>
+            <p className="text-wip-muted mb-8">{excerpt}</p>
+            <div className="prose max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            </div>
+          </div>
+        ) : (
+          /* Edit Mode */
+          <div className="space-y-6">
+            {/* Basic Info */}
+            <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-white mb-4">Post Details</h2>
+              
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Slug</label>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Excerpt</label>
+                <textarea
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={published}
+                    onChange={(e) => setPublished(e.target.checked)}
+                    className="w-4 h-4 rounded border-wip-border bg-wip-dark text-wip-gold focus:ring-wip-gold"
+                  />
+                  <span className="text-sm text-wip-text">Published</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="bg-wip-card border border-wip-border rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-white mb-4">Content (Markdown)</h2>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={20}
+                className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white font-mono text-sm focus:outline-none focus:border-wip-gold transition-colors resize-y"
+                placeholder="Write your post content in Markdown..."
+              />
+            </div>
+
+            {/* Books */}
+            <div className="bg-wip-card border border-wip-border rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">Book Recommendations</h2>
+                <button
+                  onClick={addBook}
+                  className="text-sm text-wip-gold hover:text-wip-gold-dark transition-colors"
+                >
+                  + Add Book
+                </button>
+              </div>
+              
+              {books.length === 0 ? (
+                <p className="text-wip-muted text-sm">No book recommendations yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {books.map((book, index) => (
+                    <div key={index} className="bg-wip-dark border border-wip-border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-wip-muted">Book {index + 1}</span>
+                        <button
+                          onClick={() => removeBook(index)}
+                          className="text-red-400 hover:text-red-300 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          type="text"
+                          value={book.title}
+                          onChange={(e) => updateBook(index, 'title', e.target.value)}
+                          placeholder="Book Title"
+                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold"
+                        />
+                        <input
+                          type="text"
+                          value={book.author}
+                          onChange={(e) => updateBook(index, 'author', e.target.value)}
+                          placeholder="Author"
+                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold"
+                        />
+                      </div>
+                      <textarea
+                        value={book.description}
+                        onChange={(e) => updateBook(index, 'description', e.target.value)}
+                        placeholder="Why this book is relevant..."
+                        rows={2}
+                        className="w-full px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold resize-none"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
+

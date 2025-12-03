@@ -24,6 +24,9 @@ export function isSupabaseConfigured(): boolean {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 }
 
+// Singleton client for browser
+let browserClient: ReturnType<typeof createClient> | null = null
+
 // Client for public/frontend operations
 export function createBrowserClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -33,7 +36,11 @@ export function createBrowserClient() {
     throw new Error('Supabase environment variables are not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey)
+  // Return existing client if available (for auth persistence)
+  if (browserClient) return browserClient
+  
+  browserClient = createClient(supabaseUrl, supabaseAnonKey)
+  return browserClient
 }
 
 // Client for server operations (with service role key)
