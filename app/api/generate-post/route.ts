@@ -71,7 +71,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Failed to generate post',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        env_check: {
+          has_supabase_url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+          has_service_key: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          supabase_url: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30) + '...'
+        }
       },
       { status: 500 }
     )

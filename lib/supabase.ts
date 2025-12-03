@@ -126,7 +126,8 @@ export async function createPost(post: Omit<Post, 'id' | 'created_at'>): Promise
   
   if (error) {
     console.error('Error creating post:', error)
-    return null
+    // Throw error with details for better debugging
+    throw new Error(`Database error: ${error.message} (Code: ${error.code})`)
   }
   
   return data as Post
