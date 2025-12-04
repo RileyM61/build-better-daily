@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -9,12 +9,9 @@ import { getSession } from '@/lib/auth'
 import { createBrowserClient } from '@/lib/supabase'
 import type { Post, Book } from '@/lib/supabase'
 
-interface PageProps {
-  params: Promise<{ id: string }>
-}
-
-export default function EditPostPage({ params }: PageProps) {
-  const { id } = use(params)
+export default function EditPostPage() {
+  const params = useParams()
+  const id = params.id as string
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
