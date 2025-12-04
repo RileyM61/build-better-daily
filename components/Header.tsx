@@ -10,9 +10,9 @@ export default function Header() {
             <Image
               src="/images/logo.png"
               alt="Build Better Daily"
-              width={600}
-              height={180}
-              className="h-36 w-auto group-hover:opacity-90 transition-opacity"
+              width={1200}
+              height={360}
+              className="h-72 w-auto group-hover:opacity-90 transition-opacity"
               priority
             />
           </Link>
