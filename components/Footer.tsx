@@ -1,37 +1,48 @@
+import { Construction, Sparkles } from 'lucide-react'
+
 export default function Footer() {
   const currentYear = new Date().getFullYear()
-  
+
   return (
-    <footer className="border-t border-wip-border mt-16">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            <span className="text-sm text-wip-muted">
+    <footer className="border-t border-wip-border bg-wip-card/20 mt-24">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-wip-card to-wip-dark border border-wip-border flex items-center justify-center text-wip-gold shadow-lg shadow-wip-gold/5">
+              <Construction className="w-4 h-4" />
+            </div>
+            <span className="font-semibold text-wip-text tracking-tight">
               Build Better Daily
             </span>
           </div>
-          <p className="text-wip-muted text-sm text-center">
-            Clarity for construction leaders. One insight at a time.
+
+          <p className="text-wip-muted text-sm text-center md:text-left flex items-center gap-2">
+            Clarity for construction leaders
+            <span className="w-1 h-1 rounded-full bg-wip-border" />
+            One insight at a time.
           </p>
+
           <div className="flex items-center gap-4">
             <a
               href="https://wip-insights.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-wip-muted hover:text-wip-gold transition-colors"
+              className="text-sm font-medium text-wip-muted hover:text-white transition-colors flex items-center gap-2 group"
             >
+              <Sparkles className="w-4 h-4 text-wip-gold" />
               WIP Insights Tool
             </a>
           </div>
         </div>
-        <div className="mt-6 pt-6 border-t border-wip-border/50 text-center">
+
+        <div className="mt-8 pt-8 border-t border-wip-border/50 text-center md:flex md:justify-between md:items-center">
           <p className="text-wip-muted/60 text-xs">
             © {currentYear} Build Better Daily. All rights reserved.
           </p>
+          <div className="flex gap-6 mt-4 md:mt-0 text-xs text-wip-muted/60">
+            <a href="#" className="hover:text-wip-muted transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-wip-muted transition-colors">Terms of Service</a>
+          </div>
         </div>
       </div>
     </footer>

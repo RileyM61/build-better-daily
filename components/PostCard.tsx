@@ -1,41 +1,54 @@
+'use strict';
+'use client';
+
 import Link from 'next/link'
+import * as motion from 'framer-motion/client'
+import { Calendar, ArrowRight } from 'lucide-react'
 
 interface PostCardProps {
   title: string
   slug: string
   excerpt: string
   createdAt: string
+  index?: number
 }
 
-export default function PostCard({ title, slug, excerpt, createdAt }: PostCardProps) {
+export default function PostCard({ title, slug, excerpt, createdAt, index = 0 }: PostCardProps) {
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   })
 
   return (
-    <article className="group">
-      <Link href={`/post/${slug}`} className="block">
-        <div className="p-6 rounded-xl bg-wip-card/50 border border-wip-border hover:border-wip-gold/50 transition-all duration-300 hover:bg-wip-card">
-          <time className="text-sm text-wip-gold font-medium">
-            {formattedDate}
-          </time>
-          <h2 className="text-xl md:text-2xl font-semibold text-white mt-2 mb-3 group-hover:text-wip-gold transition-colors">
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      className="group"
+    >
+      <Link href={`/post/${slug}`} className="block h-full">
+        <div className="h-full p-8 rounded-2xl bg-wip-card/40 border border-wip-border/50 hover:border-wip-gold/30 hover:bg-wip-card/60 hover:shadow-[0_0_30px_-10px_rgba(245,158,11,0.1)] transition-all duration-300 flex flex-col">
+          <div className="flex items-center gap-2 text-wip-gold/80 text-xs font-medium bg-wip-gold/5 w-fit px-3 py-1 rounded-full mb-4 border border-wip-gold/10">
+            <Calendar className="w-3 h-3" />
+            <time>{formattedDate}</time>
+          </div>
+
+          <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-wip-gold transition-colors line-clamp-2">
             {title}
           </h2>
-          <p className="text-wip-muted leading-relaxed line-clamp-3">
+
+          <p className="text-wip-muted leading-relaxed line-clamp-3 mb-6 flex-grow">
             {excerpt}
           </p>
-          <div className="mt-4 flex items-center text-wip-gold text-sm font-medium">
-            Read more
-            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+
+          <div className="flex items-center text-wip-gold text-sm font-bold tracking-wide group/link">
+            READ ARTICLE
+            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/link:translate-x-1" />
           </div>
         </div>
       </Link>
-    </article>
+    </motion.article>
   )
 }
 

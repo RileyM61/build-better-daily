@@ -31,14 +31,14 @@ let browserClient: ReturnType<typeof createClient> | null = null
 export function createBrowserClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  
+
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Supabase environment variables are not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
   }
-  
+
   // Return existing client if available (for auth persistence)
   if (browserClient) return browserClient
-  
+
   browserClient = createClient(supabaseUrl, supabaseAnonKey)
   return browserClient
 }
@@ -47,11 +47,11 @@ export function createBrowserClient() {
 export function createServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  
+
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Supabase environment variables are not configured. Please set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.')
   }
-  
+
   return createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
       autoRefreshToken: false,
@@ -60,83 +60,128 @@ export function createServerClient() {
   })
 }
 
+// Mock data for development
+const MOCK_POSTS: Post[] = [
+  {
+    id: '1',
+    title: 'The Cash Flow Rollercoaster: How to Get Off',
+    slug: 'cash-flow-rollercoaster',
+    excerpt: 'Most construction businesses die because of cash flow, not lack of work. Here is the framework for stabilizing your finances.',
+    content: 'Mock content...',
+    books: [],
+    created_at: new Date().toISOString(),
+    published: true
+  },
+  {
+    id: '2',
+    title: 'Leadership in the Field vs. The Office',
+    slug: 'leadership-field-vs-office',
+    excerpt: 'Why your best foreman struggles when you promote him to project manager, and how to bridge the gap.',
+    content: 'Mock content...',
+    books: [],
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    published: true
+  },
+  {
+    id: '3',
+    title: 'Stop Bidding on Everything',
+    slug: 'stop-bidding-everything',
+    excerpt: 'The power of niche. Why narrowing your focus actually increases your profit margins.',
+    content: 'Mock content...',
+    books: [],
+    created_at: new Date(Date.now() - 172800000).toISOString(),
+    published: true
+  }
+]
+
 // Helper to get all published posts
 export async function getPosts(limit?: number): Promise<Post[]> {
-  const supabase = createServerClient()
-  
-  let query = supabase
-    .from('posts')
-    .select('*')
-    .eq('published', true)
-    .order('created_at', { ascending: false })
-  
-  if (limit) {
-    query = query.limit(limit)
+  // Return mock data if Supabase is not configured
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('Supabase not configured, returning mock data')
+    return MOCK_POSTS
   }
-  
-  const { data, error } = await query
-  
-  if (error) {
-    console.error('Error fetching posts:', error)
-    return []
+
+  try {
+    const supabase = createServerClient()
+
+    let query = supabase
+      .from('posts')
+      .select('*')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+
+    if (limit) {
+      query = query.limit(limit)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error fetching posts:', error)
+      return []
+    }
+
+    return data as Post[]
+  } catch (error) {
+    console.warn('Error connecting to Supabase, returning mock data:', error)
+    return MOCK_POSTS
   }
-  
-  return data as Post[]
 }
 
 // Helper to get a single post by slug
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   const supabase = createServerClient()
-  
+
   const { data, error } = await supabase
     .from('posts')
     .select('*')
     .eq('slug', slug)
     .eq('published', true)
     .single()
-  
+
   if (error) {
     console.error('Error fetching post:', error)
     return null
   }
-  
+
   return data as Post
 }
 
 // Helper to get recent post titles (for avoiding duplicate topics)
 export async function getRecentPostTitles(count: number = 30): Promise<string[]> {
   const supabase = createServerClient()
-  
+
   const { data, error } = await supabase
     .from('posts')
     .select('title')
     .order('created_at', { ascending: false })
     .limit(count)
-  
+
   if (error) {
     console.error('Error fetching recent titles:', error)
     return []
   }
-  
+
   return data.map(post => post.title)
 }
 
 // Helper to create a new post
 export async function createPost(post: Omit<Post, 'id' | 'created_at'>): Promise<Post | null> {
   const supabase = createServerClient()
-  
+
   const { data, error } = await supabase
     .from('posts')
     .insert([post])
     .select()
     .single()
-  
+
   if (error) {
     console.error('Error creating post:', error)
     // Throw error with details for better debugging
     throw new Error(`Database error: ${error.message} (Code: ${error.code})`)
   }
-  
+
   return data as Post
 }
 
