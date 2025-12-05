@@ -1,62 +1,162 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Mail } from 'lucide-react'
+import { ArrowRight, Mail, Loader2, CheckCircle2 } from 'lucide-react'
 import { Button } from './Button'
+import Modal from './Modal'
 
 export default function Hero() {
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [email, setEmail] = useState('')
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+    const handleScrollToPosts = () => {
+        const postsSection = document.getElementById('posts')
+        if (postsSection) {
+            postsSection.scrollIntoView({ behavior: 'smooth' })
+        }
+    }
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setStatus('loading')
+
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            })
+
+            if (res.ok) {
+                setStatus('success')
+                setTimeout(() => {
+                    setIsModalOpen(false)
+                    setStatus('idle')
+                    setEmail('')
+                }, 3000)
+            } else {
+                setStatus('error')
+            }
+        } catch (error) {
+            setStatus('error')
+        }
+    }
+
     return (
-        <section className="py-20 md:py-32 relative overflow-hidden">
-            <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-wip-gold/10 border border-wip-gold/20 mb-8 hover:bg-wip-gold/20 transition-colors cursor-default"
-                >
-                    <span className="w-2 h-2 bg-wip-gold rounded-full animate-pulse" />
-                    <span className="text-wip-gold text-sm font-bold tracking-wide uppercase">Clarity for Construction Leaders</span>
-                </motion.div>
+        <>
+            <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-wip-navy/80 mix-blend-multiply z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-wip-navy/50 to-wip-navy/90 z-10" />
+                    <img
+                        src="/images/hero-construction.png"
+                        alt="Construction Site"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
 
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className="text-5xl md:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-tight"
-                >
-                    Build <span className="text-gradient-gold">Better</span><br />
-                    Daily
-                </motion.h1>
+                <div className="max-w-4xl mx-auto px-4 text-center relative z-20 pt-20">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8 backdrop-blur-sm"
+                    >
+                        <span className="w-2 h-2 bg-wip-gold rounded-full animate-pulse" />
+                        <span className="text-wip-gold text-sm font-bold tracking-wide uppercase">Clarity for Construction Leaders</span>
+                    </motion.div>
 
-                <motion.p
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-lg md:text-xl text-wip-muted max-w-2xl mx-auto leading-relaxed mb-10"
-                >
-                    Real talk about cash flow, leadership, and building a construction business that actually works.
-                    No fluff. No jargon. Just clarity.
-                </motion.p>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-tight drop-shadow-lg"
+                    >
+                        Master the <span className="text-gradient-gold">Business</span><br />
+                        of Building
+                    </motion.h1>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
-                >
-                    <Button size="lg" className="w-full sm:w-auto gap-2 group">
-                        Start Reading
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
-                        <Mail className="w-4 h-4" />
-                        Subscribe
-                    </Button>
-                </motion.div>
-            </div>
+                    <motion.p
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed mb-10 drop-shadow-md"
+                    >
+                        Real talk about cash flow, leadership, and building a construction business that actually works.
+                        No fluff. No jargon. Just clarity.
+                    </motion.p>
 
-            {/* Decorative background elements */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-wip-gold/5 rounded-full blur-3xl -z-10 pointer-events-none" />
-        </section>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                    >
+                        <Button size="lg" className="w-full sm:w-auto gap-2 group shadow-xl shadow-black/20" onClick={handleScrollToPosts}>
+                            Start Reading
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className="w-full sm:w-auto gap-2 bg-white/5 border-white/30 text-white hover:bg-white/10 hover:text-white"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            <Mail className="w-4 h-4" />
+                            Subscribe
+                        </Button>
+                    </motion.div>
+                </div>
+            </section>
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Join the Newsletter">
+                {status === 'success' ? (
+                    <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500 border border-green-500/20">
+                            <CheckCircle2 className="w-8 h-8" />
+                        </div>
+                        <h4 className="text-xl font-bold text-white mb-2">You're on the list!</h4>
+                        <p className="text-wip-muted">Thanks for subscribing. Keep an eye on your inbox.</p>
+                    </div>
+                ) : (
+                    <div>
+                        <p className="text-wip-muted mb-6">
+                            Get weekly insights on construction management, cash flow, and leadership strategies delivered straight to your inbox.
+                        </p>
+                        <form onSubmit={handleSubscribe} className="space-y-4">
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-wip-muted mb-2">Email Address</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@company.com"
+                                    className="w-full px-4 py-3 rounded-lg bg-wip-dark border border-wip-border text-white placeholder:text-wip-muted/50 focus:outline-none focus:ring-2 focus:ring-wip-gold/50 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={status === 'loading'}
+                            >
+                                {status === 'loading' ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        Joining...
+                                    </>
+                                ) : (
+                                    'Subscribe for Updates'
+                                )}
+                            </Button>
+                        </form>
+                    </div>
+                )}
+            </Modal>
+        </>
     )
 }

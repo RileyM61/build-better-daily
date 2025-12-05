@@ -17,7 +17,7 @@ export default async function HomePage() {
         <Hero />
 
         {/* Blog Posts */}
-        <section className="pb-24 relative z-10">
+        <section id="posts" className="pb-24 relative z-10">
           <div className="max-w-4xl mx-auto px-4">
             <div className="flex items-end justify-between mb-12 border-b border-wip-border/50 pb-4">
               <h2 className="text-3xl font-bold text-white tracking-tight">Latest Insights</h2>
