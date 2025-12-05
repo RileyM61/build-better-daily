@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
         // Always return success for the "coming soon" experience
         return NextResponse.json({ success: true })
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

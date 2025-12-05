@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ArrowRight, Mail, Loader2, CheckCircle2 } from 'lucide-react'
 import { Button } from './Button'
@@ -39,7 +40,7 @@ export default function Hero() {
             } else {
                 setStatus('error')
             }
-        } catch (error) {
+        } catch {
             setStatus('error')
         }
     }
@@ -51,10 +52,12 @@ export default function Hero() {
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-wip-navy/80 mix-blend-multiply z-10" />
                     <div className="absolute inset-0 bg-gradient-to-b from-wip-navy/50 to-wip-navy/90 z-10" />
-                    <img
+                    <Image
                         src="/images/hero-construction.png"
                         alt="Construction Site"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        priority
                     />
                 </div>
 
@@ -118,7 +121,7 @@ export default function Hero() {
                         <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500 border border-green-500/20">
                             <CheckCircle2 className="w-8 h-8" />
                         </div>
-                        <h4 className="text-xl font-bold text-white mb-2">You're on the list!</h4>
+                        <h4 className="text-xl font-bold text-white mb-2">You&apos;re on the list!</h4>
                         <p className="text-wip-muted">Thanks for subscribing. Keep an eye on your inbox.</p>
                     </div>
                 ) : (
