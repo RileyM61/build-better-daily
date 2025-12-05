@@ -131,6 +131,11 @@ export async function getPosts(limit?: number): Promise<Post[]> {
 
 // Helper to get a single post by slug
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const mock = MOCK_POSTS.find(p => p.slug === slug)
+    return mock || null
+  }
+
   const supabase = createServerClient()
 
   const { data, error } = await supabase
@@ -150,6 +155,10 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 
 // Helper to get recent post titles (for avoiding duplicate topics)
 export async function getRecentPostTitles(count: number = 30): Promise<string[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return MOCK_POSTS.map(p => p.title).slice(0, count)
+  }
+
   const supabase = createServerClient()
 
   const { data, error } = await supabase
