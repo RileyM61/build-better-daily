@@ -1,48 +1,3 @@
-import { createServerClient, getPosts } from '@/lib/supabase'
-import Header from '@/components/Header'
-import SocialGenerator from '@/components/SocialGenerator'
-
-// Mock data remains for fallback
-const MOCK_POSTS = [
-    {
-        id: '1',
-        title: 'Stop Bidding Everything: The Art of Selective Tendering',
-        content: 'In the construction industry, the urge to bid on every project that crosses your desk is a surefire way to kill your cash flow and burnout your team. Selective tendering isn\'t just about saying no; it\'s about strategically saying yes to the right projects...',
-        slug: 'stop-bidding-everything',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '2',
-        title: 'Cash Flow is King: Managing Retainage Effectively',
-        content: 'Retainage can cripple a small subcontractor if not managed correctly. It represents your profit margin sitting in someone else\'s bank account. Here are strategies to negotiate better terms and account for that missing 10%...',
-        slug: 'cash-flow-is-king',
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-        id: '3',
-        title: 'Leadership on Site: Beyond the Hard Hat',
-        content: 'True leadership on a construction site isn\'t about being the loudest voice. It\'s about clarity, safety, and respect. When your foreman respects the team, the team respects the schedule. It\'s that simple...',
-        slug: 'leadership-on-site',
-        created_at: new Date(Date.now() - 172800000).toISOString(),
-    }
-]
-
-export default async function SocialDashboard() {
-    // const supabase = createServerClient()
-    let posts: any[] = []
-
-    try {
-        // Use the existing helper which already handles mocks and errors
-        posts = await getPosts()
-    } catch (err) {
-        posts = MOCK_POSTS
-    }
-
-    // If supabase returns empty but no error (e.g. empty table), use mock for demo
-    if (posts.length === 0) posts = MOCK_POSTS
-
-    return (
-        <div className="min-h-screen bg-wip-dark text-wip-text font-sans selection:bg-wip-gold selection:text-wip-dark">
             <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-wip-navy via-wip-dark to-black pointer-events-none" />
 
             <div className="relative z-10 flex flex-col min-h-screen">
@@ -76,6 +31,6 @@ export default async function SocialDashboard() {
                     </div>
                 </main>
             </div>
-        </div>
+        </div >
     )
 }
