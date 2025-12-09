@@ -359,7 +359,21 @@ export default function EditPostPage() {
       <div className="max-w-6xl mx-auto px-4 py-8 mb-8">
         <details className="bg-gray-800 p-4 rounded text-xs text-white">
           <summary className="cursor-pointer font-bold mb-2">Debug Info (Developer Only)</summary>
-          <pre>{JSON.stringify(debugData, null, 2)}</pre>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <strong className="block mb-2 text-yellow-500">Local State (What will be saved):</strong>
+              <pre>{JSON.stringify({
+                title,
+                slug,
+                infographicUrl,
+                booksCount: books.length
+              }, null, 2)}</pre>
+            </div>
+            <div>
+              <strong className="block mb-2 text-blue-500">DB Data (What was fetched):</strong>
+              <pre>{JSON.stringify(debugData, null, 2)}</pre>
+            </div>
+          </div>
         </details>
       </div>
     </div>
