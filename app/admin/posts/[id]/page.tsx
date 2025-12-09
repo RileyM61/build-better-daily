@@ -43,6 +43,7 @@ export default function EditPostPage() {
     }
 
     const postData = data as Post
+    console.log('Fetched Post Data:', postData)
     setTitle(postData.title)
     setSlug(postData.slug)
     setExcerpt(postData.excerpt)
@@ -68,17 +69,20 @@ export default function EditPostPage() {
     setMessage(null)
 
     const supabase = createBrowserClient()
+    const updatePayload = {
+      title,
+      slug,
+      excerpt,
+      content,
+      published,
+      books,
+      infographic_url: infographicUrl,
+    }
+    console.log('Reviewing Payload:', updatePayload)
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('posts') as any)
-      .update({
-        title,
-        slug,
-        excerpt,
-        content,
-        published,
-        books,
-        infographic_url: infographicUrl,
-      })
+      .update(updatePayload)
       .eq('id', id)
 
     if (error) {
