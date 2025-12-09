@@ -27,8 +27,6 @@ export default function EditPostPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [infographicUrl, setInfographicUrl] = useState('')
   const [uploadingInfo, setUploadingInfo] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [debugData, setDebugData] = useState<any>(null)
 
   const fetchPost = useCallback(async () => {
     const supabase = createBrowserClient()
@@ -45,8 +43,6 @@ export default function EditPostPage() {
     }
 
     const postData = data as Post
-    console.log('Fetched Post Data:', postData)
-    setDebugData(postData)
     setTitle(postData.title)
     setSlug(postData.slug)
     setExcerpt(postData.excerpt)
@@ -72,20 +68,17 @@ export default function EditPostPage() {
     setMessage(null)
 
     const supabase = createBrowserClient()
-    const updatePayload = {
-      title,
-      slug,
-      excerpt,
-      content,
-      published,
-      books,
-      infographic_url: infographicUrl,
-    }
-    console.log('Reviewing Payload:', updatePayload)
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('posts') as any)
-      .update(updatePayload)
+      .update({
+        title,
+        slug,
+        excerpt,
+        content,
+        published,
+        books,
+        infographic_url: infographicUrl,
+      })
       .eq('id', id)
 
     if (error) {
@@ -354,28 +347,6 @@ export default function EditPostPage() {
           </div>
         )}
       </main>
-
-      {/* Debug Info */}
-      <div className="max-w-6xl mx-auto px-4 py-8 mb-8">
-        <details className="bg-gray-800 p-4 rounded text-xs text-white">
-          <summary className="cursor-pointer font-bold mb-2">Debug Info (Developer Only)</summary>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <strong className="block mb-2 text-yellow-500">Local State (What will be saved):</strong>
-              <pre>{JSON.stringify({
-                title,
-                slug,
-                infographicUrl,
-                booksCount: books.length
-              }, null, 2)}</pre>
-            </div>
-            <div>
-              <strong className="block mb-2 text-blue-500">DB Data (What was fetched):</strong>
-              <pre>{JSON.stringify(debugData, null, 2)}</pre>
-            </div>
-          </div>
-        </details>
-      </div>
     </div>
   )
 }
