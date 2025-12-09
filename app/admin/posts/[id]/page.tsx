@@ -27,6 +27,7 @@ export default function EditPostPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [infographicUrl, setInfographicUrl] = useState('')
   const [uploadingInfo, setUploadingInfo] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [debugData, setDebugData] = useState<any>(null)
 
   const fetchPost = useCallback(async () => {
