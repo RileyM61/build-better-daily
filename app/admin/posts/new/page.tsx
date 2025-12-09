@@ -23,6 +23,9 @@ export default function NewPostPage() {
   const [content, setContent] = useState('')
   const [published, setPublished] = useState(false)
   const [books, setBooks] = useState<Book[]>([])
+  const [infographicFile, setInfographicFile] = useState<File | null>(null)
+  const [infographicUrl, setInfographicUrl] = useState('')
+  const [uploadingInfo, setUploadingInfo] = useState(false)
 
   useEffect(() => {
     getSession().then((session) => {
@@ -64,6 +67,7 @@ export default function NewPostPage() {
         content,
         published,
         books,
+        infographic_url: infographicUrl,
       })
       .select()
       .single()
@@ -88,6 +92,40 @@ export default function NewPostPage() {
 
   const removeBook = (index: number) => {
     setBooks(books.filter((_, i) => i !== index))
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return
+    }
+
+    const file = e.target.files[0]
+    setInfographicFile(file)
+    setUploadingInfo(true)
+
+    try {
+      const supabase = createBrowserClient()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`
+      const filePath = `infographics/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        throw uploadError
+      }
+
+      const { data } = supabase.storage.from('post-images').getPublicUrl(filePath)
+      setInfographicUrl(data.publicUrl)
+      setMessage({ type: 'success', text: 'Infographic uploaded successfully' })
+    } catch (error: any) {
+      setMessage({ type: 'error', text: 'Error uploading infographic: ' + error.message })
+      setInfographicFile(null)
+    } finally {
+      setUploadingInfo(false)
+    }
   }
 
   if (loading) {
@@ -129,11 +167,10 @@ export default function NewPostPage() {
       {/* Message */}
       {message && (
         <div className={`max-w-6xl mx-auto px-4 mt-4`}>
-          <div className={`px-4 py-3 rounded-lg text-sm ${
-            message.type === 'success' 
-              ? 'bg-green-500/10 border border-green-500/50 text-green-400'
-              : 'bg-red-500/10 border border-red-500/50 text-red-400'
-          }`}>
+          <div className={`px-4 py-3 rounded-lg text-sm ${message.type === 'success'
+            ? 'bg-green-500/10 border border-green-500/50 text-green-400'
+            : 'bg-red-500/10 border border-red-500/50 text-red-400'
+            }`}>
             {message.text}
           </div>
         </div>
@@ -158,7 +195,7 @@ export default function NewPostPage() {
             {/* Basic Info */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
               <h2 className="text-lg font-semibold text-white mb-4">Post Details</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-wip-text mb-2">Title</label>
                 <input
@@ -203,6 +240,38 @@ export default function NewPostPage() {
                   <span className="text-sm text-wip-text">Publish immediately</span>
                 </label>
               </div>
+
+              {/* Infographic Upload */}
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Infographic (Optional)</label>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    disabled={uploadingInfo}
+                    className="w-full text-sm text-wip-muted
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-medium
+                      file:bg-wip-gold file:text-wip-dark
+                      hover:file:bg-wip-gold-dark
+                      file:cursor-pointer cursor-pointer"
+                  />
+                  {uploadingInfo && <span className="text-sm text-wip-muted">Uploading...</span>}
+                  {infographicUrl && (
+                    <div className="mt-2">
+                      <p className="text-xs text-green-400 mb-2">✓ Uploaded successfully</p>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={infographicUrl}
+                        alt="Infographic preview"
+                        className="max-h-40 rounded border border-wip-border"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Content */}
@@ -228,7 +297,7 @@ export default function NewPostPage() {
                   + Add Book
                 </button>
               </div>
-              
+
               {books.length === 0 ? (
                 <p className="text-wip-muted text-sm">No book recommendations yet. Click &quot;Add Book&quot; to add one.</p>
               ) : (

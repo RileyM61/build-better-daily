@@ -15,6 +15,7 @@ export interface Post {
   content: string
   excerpt: string
   books: Book[]
+  infographic_url?: string
   created_at: string
   published: boolean
 }
