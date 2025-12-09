@@ -40,6 +40,10 @@ export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params
   const post = await getPostBySlug(slug)
 
+  if (post?.infographic_url) {
+    console.log('Infographic URL:', post.infographic_url)
+  }
+
   if (!post) {
     notFound()
   }
@@ -100,7 +104,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 <div className="my-8">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={post.infographic_url}
+                    src={post.infographic_url!}
                     alt={`Infographic for ${post.title}`}
                     className="w-full rounded-xl border border-wip-border shadow-2xl"
                   />
