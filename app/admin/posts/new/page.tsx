@@ -23,7 +23,6 @@ export default function NewPostPage() {
   const [content, setContent] = useState('')
   const [published, setPublished] = useState(false)
   const [books, setBooks] = useState<Book[]>([])
-  const [infographicFile, setInfographicFile] = useState<File | null>(null)
   const [infographicUrl, setInfographicUrl] = useState('')
   const [uploadingInfo, setUploadingInfo] = useState(false)
 
@@ -100,7 +99,6 @@ export default function NewPostPage() {
     }
 
     const file = e.target.files[0]
-    setInfographicFile(file)
     setUploadingInfo(true)
 
     try {
@@ -120,9 +118,9 @@ export default function NewPostPage() {
       const { data } = supabase.storage.from('post-images').getPublicUrl(filePath)
       setInfographicUrl(data.publicUrl)
       setMessage({ type: 'success', text: 'Infographic uploaded successfully' })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setMessage({ type: 'error', text: 'Error uploading infographic: ' + error.message })
-      setInfographicFile(null)
     } finally {
       setUploadingInfo(false)
     }
