@@ -94,14 +94,24 @@ export default function AdminDashboard() {
               </svg>
               <span className="text-lg font-semibold text-white">Build Better Daily</span>
             </Link>
-            <span className="text-wip-muted">/ Admin</span>
+            <span className="text-wip-muted">/</span>
+            <span className="text-white">Admin</span>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="text-sm text-wip-muted hover:text-white transition-colors"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/subscribers"
+              className="text-sm text-wip-muted hover:text-white transition-colors"
+            >
+              Subscribers
+            </Link>
+            <span className="text-wip-border">|</span>
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-wip-muted hover:text-white transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </header>
 
