@@ -16,7 +16,7 @@ export default function Header() {
               alt="Build Better Daily"
               width={1200}
               height={360}
-              className="h-24 w-auto relative transition-transform duration-300 group-hover:scale-105"
+              className="h-[7.5rem] w-auto relative transition-transform duration-300 group-hover:scale-105"
               priority
             />
           </Link>
