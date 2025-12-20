@@ -141,22 +141,22 @@ export default function AdminDashboard() {
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round"/>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               </svg>
-              <span className="text-lg font-semibold text-white">Build Better Daily</span>
+              <span className="text-lg font-semibold text-black">Build Better Daily</span>
             </Link>
             <span className="text-wip-muted">/</span>
-            <span className="text-white">Admin</span>
+            <span className="text-black">Admin</span>
           </div>
           <div className="flex items-center gap-4">
             <Link
               href="/admin/subscribers"
-              className="text-sm text-wip-muted hover:text-white transition-colors"
+              className="text-sm text-wip-muted hover:text-black transition-colors"
             >
               Subscribers
             </Link>
             <span className="text-wip-border">|</span>
             <button
               onClick={handleSignOut}
-              className="text-sm text-wip-muted hover:text-white transition-colors"
+              className="text-sm text-wip-muted hover:text-black transition-colors"
             >
               Sign Out
             </button>
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-white">Blog Posts</h1>
+            <h1 className="text-2xl font-bold text-black">Blog Posts</h1>
             {generateError && (
               <p className="text-red-400 text-sm mt-1">{generateError}</p>
             )}
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/admin/posts/${post.id}`}
-                          className="text-white hover:text-wip-gold transition-colors font-medium"
+                          className="text-black hover:text-wip-gold transition-colors font-medium"
                         >
                           {post.title}
                         </Link>
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                         <Link
                           href={`/post/${post.slug}`}
                           target="_blank"
-                          className="p-2 text-wip-muted hover:text-white transition-colors"
+                          className="p-2 text-wip-muted hover:text-black transition-colors"
                           title="View"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

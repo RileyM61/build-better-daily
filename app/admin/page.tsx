@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round"/>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           </svg>
-          <h1 className="text-2xl font-bold text-white">Build Better Daily</h1>
+          <h1 className="text-2xl font-bold text-black">Build Better Daily</h1>
           <p className="text-wip-muted mt-2">Admin Login</p>
         </div>
 
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white placeholder-wip-muted focus:outline-none focus:border-wip-gold transition-colors"
+              className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black placeholder-wip-muted focus:outline-none focus:border-wip-gold transition-colors"
               placeholder="admin@example.com"
               required
             />
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white placeholder-wip-muted focus:outline-none focus:border-wip-gold transition-colors"
+              className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black placeholder-wip-muted focus:outline-none focus:border-wip-gold transition-colors"
               placeholder="••••••••"
               required
             />

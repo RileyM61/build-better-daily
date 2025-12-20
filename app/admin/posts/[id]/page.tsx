@@ -242,7 +242,7 @@ export default function EditPostPage() {
       <header className="border-b border-wip-border bg-wip-card sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="text-wip-muted hover:text-white transition-colors">
+            <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
               ← Back to Dashboard
             </Link>
           </div>
@@ -259,7 +259,7 @@ export default function EditPostPage() {
                   <button
                     onClick={handleSendEmails}
                     disabled={sendingEmails}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sendingEmails ? 'Sending...' : 'Send Weekly Emails'}
                   </button>
@@ -306,7 +306,7 @@ export default function EditPostPage() {
         {showEmail && email && (
           <div className="bg-wip-card border border-wip-border rounded-xl p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white">Weekly Email Companion</h2>
+              <h2 className="text-lg font-semibold text-black">Weekly Email Companion</h2>
               <button
                 onClick={handleSaveEmail}
                 disabled={saving}
@@ -323,7 +323,7 @@ export default function EditPostPage() {
                   type="text"
                   value={email.subject}
                   onChange={(e) => setEmail({ ...email, subject: e.target.value })}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors"
                 />
               </div>
 
@@ -333,7 +333,7 @@ export default function EditPostPage() {
                   type="text"
                   value={email.preheader || ''}
                   onChange={(e) => setEmail({ ...email, preheader: e.target.value })}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors"
                   placeholder="Preview text"
                 />
               </div>
@@ -344,7 +344,7 @@ export default function EditPostPage() {
                   value={email.body}
                   onChange={(e) => setEmail({ ...email, body: e.target.value })}
                   rows={8}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-y"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors resize-y"
                 />
               </div>
 
@@ -354,7 +354,7 @@ export default function EditPostPage() {
                   value={email.leadership_prompt}
                   onChange={(e) => setEmail({ ...email, leadership_prompt: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors resize-none"
                 />
               </div>
 
@@ -364,7 +364,7 @@ export default function EditPostPage() {
                   value={email.watch_for}
                   onChange={(e) => setEmail({ ...email, watch_for: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors resize-none"
                 />
               </div>
 
@@ -374,7 +374,7 @@ export default function EditPostPage() {
                   value={email.execution_nudge}
                   onChange={(e) => setEmail({ ...email, execution_nudge: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors resize-none"
                 />
               </div>
             </div>
@@ -384,7 +384,7 @@ export default function EditPostPage() {
         {showPreview ? (
           /* Preview Mode */
           <div className="bg-wip-card border border-wip-border rounded-xl p-8">
-            <h1 className="text-3xl font-bold text-white mb-4">{title}</h1>
+            <h1 className="text-3xl font-bold text-black mb-4">{title}</h1>
             <p className="text-wip-muted mb-8">{excerpt}</p>
             <div className="prose max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
@@ -395,7 +395,7 @@ export default function EditPostPage() {
           <div className="space-y-6">
             {/* Basic Info */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-white mb-4">Post Details</h2>
+              <h2 className="text-lg font-semibold text-black mb-4">Post Details</h2>
 
               <div>
                 <label className="block text-sm font-medium text-wip-text mb-2">Title</label>
@@ -403,7 +403,7 @@ export default function EditPostPage() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors"
                 />
               </div>
 
@@ -413,7 +413,7 @@ export default function EditPostPage() {
                   type="text"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors"
                 />
               </div>
 
@@ -423,7 +423,7 @@ export default function EditPostPage() {
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors resize-none"
                 />
               </div>
 
@@ -474,12 +474,12 @@ export default function EditPostPage() {
 
             {/* Content */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Content (Markdown)</h2>
+              <h2 className="text-lg font-semibold text-black mb-4">Content (Markdown)</h2>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={20}
-                className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white font-mono text-sm focus:outline-none focus:border-wip-gold transition-colors resize-y"
+                className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black font-mono text-sm focus:outline-none focus:border-wip-gold transition-colors resize-y"
                 placeholder="Write your post content in Markdown..."
               />
             </div>
@@ -487,7 +487,7 @@ export default function EditPostPage() {
             {/* Books */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-white">Book Recommendations</h2>
+                <h2 className="text-lg font-semibold text-black">Book Recommendations</h2>
                 <button
                   onClick={addBook}
                   className="text-sm text-wip-gold hover:text-wip-gold-dark transition-colors"
@@ -517,14 +517,14 @@ export default function EditPostPage() {
                           value={book.title}
                           onChange={(e) => updateBook(index, 'title', e.target.value)}
                           placeholder="Book Title"
-                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold"
+                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-black text-sm focus:outline-none focus:border-wip-gold"
                         />
                         <input
                           type="text"
                           value={book.author}
                           onChange={(e) => updateBook(index, 'author', e.target.value)}
                           placeholder="Author"
-                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold"
+                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-black text-sm focus:outline-none focus:border-wip-gold"
                         />
                       </div>
                       <textarea
@@ -532,7 +532,7 @@ export default function EditPostPage() {
                         onChange={(e) => updateBook(index, 'description', e.target.value)}
                         placeholder="Why this book is relevant..."
                         rows={2}
-                        className="w-full px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold resize-none"
+                        className="w-full px-3 py-2 bg-wip-card border border-wip-border rounded text-black text-sm focus:outline-none focus:border-wip-gold resize-none"
                       />
                     </div>
                   ))}

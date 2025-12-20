@@ -77,26 +77,26 @@ export default function AdminSubscribers() {
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" strokeLinecap="round"/>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               </svg>
-              <span className="text-lg font-semibold text-white">Build Better Daily</span>
+              <span className="text-lg font-semibold text-black">Build Better Daily</span>
             </Link>
             <span className="text-wip-muted">/</span>
-            <Link href="/admin/dashboard" className="text-wip-muted hover:text-white transition-colors">
+            <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
               Admin
             </Link>
             <span className="text-wip-muted">/</span>
-            <span className="text-white">Subscribers</span>
+            <span className="text-black">Subscribers</span>
           </div>
           <div className="flex items-center gap-4">
             <Link
               href="/admin/dashboard"
-              className="text-sm text-wip-muted hover:text-white transition-colors"
+              className="text-sm text-wip-muted hover:text-black transition-colors"
             >
               Posts
             </Link>
             <span className="text-wip-border">|</span>
             <button
               onClick={handleSignOut}
-              className="text-sm text-wip-muted hover:text-white transition-colors"
+              className="text-sm text-wip-muted hover:text-black transition-colors"
             >
               Sign Out
             </button>
@@ -108,7 +108,7 @@ export default function AdminSubscribers() {
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-white">Subscribers</h1>
+            <h1 className="text-2xl font-bold text-black">Subscribers</h1>
             <p className="text-wip-muted mt-1">
               {subscribers.length} {subscribers.length === 1 ? 'subscriber' : 'subscribers'} total
             </p>
@@ -137,7 +137,7 @@ export default function AdminSubscribers() {
                 {subscribers.map((subscriber) => (
                   <tr key={subscriber.id} className="hover:bg-wip-dark/30 transition-colors">
                     <td className="px-4 py-4">
-                      <span className="text-white">{subscriber.email}</span>
+                      <span className="text-black">{subscriber.email}</span>
                     </td>
                     <td className="px-4 py-4 text-sm text-wip-muted">
                       {new Date(subscriber.created_at).toLocaleDateString('en-US', {

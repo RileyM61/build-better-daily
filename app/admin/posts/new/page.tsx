@@ -140,7 +140,7 @@ export default function NewPostPage() {
       <header className="border-b border-wip-border bg-wip-card sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="text-wip-muted hover:text-white transition-colors">
+            <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
               ← Back to Dashboard
             </Link>
           </div>
@@ -176,12 +176,12 @@ export default function NewPostPage() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-white mb-6">Create New Post</h1>
+        <h1 className="text-2xl font-bold text-black mb-6">Create New Post</h1>
 
         {showPreview ? (
           /* Preview Mode */
           <div className="bg-wip-card border border-wip-border rounded-xl p-8">
-            <h1 className="text-3xl font-bold text-white mb-4">{title || 'Untitled'}</h1>
+            <h1 className="text-3xl font-bold text-black mb-4">{title || 'Untitled'}</h1>
             <p className="text-wip-muted mb-8">{excerpt || 'No excerpt'}</p>
             <div className="prose max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{content || '*No content yet*'}</ReactMarkdown>
@@ -192,7 +192,7 @@ export default function NewPostPage() {
           <div className="space-y-6">
             {/* Basic Info */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-white mb-4">Post Details</h2>
+              <h2 className="text-lg font-semibold text-black mb-4">Post Details</h2>
 
               <div>
                 <label className="block text-sm font-medium text-wip-text mb-2">Title</label>
@@ -200,7 +200,7 @@ export default function NewPostPage() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors"
                   placeholder="Enter post title..."
                 />
               </div>
@@ -211,7 +211,7 @@ export default function NewPostPage() {
                   type="text"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors"
                   placeholder="url-friendly-slug"
                 />
               </div>
@@ -222,7 +222,7 @@ export default function NewPostPage() {
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black focus:outline-none focus:border-wip-gold transition-colors resize-none"
                   placeholder="Brief description of the post..."
                 />
               </div>
@@ -274,12 +274,12 @@ export default function NewPostPage() {
 
             {/* Content */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Content (Markdown)</h2>
+              <h2 className="text-lg font-semibold text-black mb-4">Content (Markdown)</h2>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={20}
-                className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white font-mono text-sm focus:outline-none focus:border-wip-gold transition-colors resize-y"
+                className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-black font-mono text-sm focus:outline-none focus:border-wip-gold transition-colors resize-y"
                 placeholder="Write your post content in Markdown..."
               />
             </div>
@@ -287,7 +287,7 @@ export default function NewPostPage() {
             {/* Books */}
             <div className="bg-wip-card border border-wip-border rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-white">Book Recommendations</h2>
+                <h2 className="text-lg font-semibold text-black">Book Recommendations</h2>
                 <button
                   onClick={addBook}
                   className="text-sm text-wip-gold hover:text-wip-gold-dark transition-colors"
@@ -317,14 +317,14 @@ export default function NewPostPage() {
                           value={book.title}
                           onChange={(e) => updateBook(index, 'title', e.target.value)}
                           placeholder="Book Title"
-                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold"
+                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-black text-sm focus:outline-none focus:border-wip-gold"
                         />
                         <input
                           type="text"
                           value={book.author}
                           onChange={(e) => updateBook(index, 'author', e.target.value)}
                           placeholder="Author"
-                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold"
+                          className="px-3 py-2 bg-wip-card border border-wip-border rounded text-black text-sm focus:outline-none focus:border-wip-gold"
                         />
                       </div>
                       <textarea
@@ -332,7 +332,7 @@ export default function NewPostPage() {
                         onChange={(e) => updateBook(index, 'description', e.target.value)}
                         placeholder="Why this book is relevant..."
                         rows={2}
-                        className="w-full px-3 py-2 bg-wip-card border border-wip-border rounded text-white text-sm focus:outline-none focus:border-wip-gold resize-none"
+                        className="w-full px-3 py-2 bg-wip-card border border-wip-border rounded text-black text-sm focus:outline-none focus:border-wip-gold resize-none"
                       />
                     </div>
                   ))}
