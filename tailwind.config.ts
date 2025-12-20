@@ -9,15 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // WIP Insights inspired color palette
-        'wip-dark': '#0a0f1a',
-        'wip-navy': '#111827',
-        'wip-card': '#1a2332',
-        'wip-border': '#2a3544',
-        'wip-gold': '#f59e0b',
-        'wip-gold-dark': '#d97706',
-        'wip-text': '#e5e7eb',
-        'wip-muted': '#9ca3af',
+        // LOAD-BEARING AESTHETIC: Structural clarity for difficult content
+        // Visual weight supports engagement with hard truths
+        'wip-dark': '#e8e2d9',        // Main background - stable ground
+        'wip-navy': '#d9d2c6',        // Secondary - darker for contrast
+        'wip-card': '#f7f5f1',        // Cards - lifted off background
+        'wip-border': '#b8ad9a',      // Borders - visible, structural
+        'wip-heading': '#262320',     // Headings - charcoal authority
+        'wip-gold': '#a6863f',        // Gold - muted gravitas
+        'wip-gold-dark': '#8a6f32',   // Darker gold - firm hover
+        'wip-text': '#363330',        // Text - warm dark gray
+        'wip-muted': '#6b655a',       // Muted - clearly secondary
       },
       fontFamily: {
         sans: ['DM Sans', 'system-ui', 'sans-serif'],

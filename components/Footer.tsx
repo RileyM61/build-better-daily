@@ -3,12 +3,14 @@ import { Construction, Sparkles } from 'lucide-react'
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
+  // GROUNDED: Solid footer with clear boundary
   return (
-    <footer className="border-t border-wip-border bg-wip-card/20 mt-24">
+    <footer className="border-t border-wip-border bg-wip-navy mt-24">
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-wip-card to-wip-dark border border-wip-border flex items-center justify-center text-wip-gold shadow-lg shadow-wip-gold/5">
+            {/* GROUNDED: Solid icon container, no gradient */}
+            <div className="w-8 h-8 rounded-lg bg-wip-card border border-wip-border flex items-center justify-center text-wip-gold">
               <Construction className="w-4 h-4" />
             </div>
             <span className="font-semibold text-wip-text tracking-tight">
@@ -27,7 +29,7 @@ export default function Footer() {
               href="https://wip-insights.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-wip-muted hover:text-white transition-colors flex items-center gap-2 group"
+              className="text-sm font-medium text-wip-muted hover:text-wip-text transition-colors flex items-center gap-2 group"
             >
               <Sparkles className="w-4 h-4 text-wip-gold" />
               WIP Insights Tool
@@ -35,7 +37,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-wip-border/50 text-center md:flex md:justify-between md:items-center">
+        {/* LOAD-BEARING: Strengthened internal divider */}
+        <div className="mt-8 pt-8 border-t-2 border-wip-border/50 text-center md:flex md:justify-between md:items-center">
           <p className="text-wip-muted/60 text-xs">
             © {currentYear} Build Better Daily. All rights reserved.
           </p>

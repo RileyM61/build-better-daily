@@ -79,21 +79,21 @@ export default async function PostPage({ params }: PostPageProps) {
               Back to all posts
             </Link>
 
-            {/* Post header */}
+            {/* Post header - authoritative typography */}
             <header className="mb-8">
-              <time className="text-wip-gold font-medium text-sm">
+              <time className="text-wip-muted font-medium text-sm">
                 {formattedDate}
               </time>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-4 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-wip-heading mt-3 mb-4 leading-tight tracking-tight">
                 {post.title}
               </h1>
-              <p className="text-lg text-wip-muted leading-relaxed">
+              <p className="text-lg text-wip-text leading-relaxed">
                 {post.excerpt}
               </p>
             </header>
 
-            {/* Divider */}
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-wip-border to-transparent mb-8" />
+            {/* LOAD-BEARING: Strengthened divider for clear section break */}
+            <div className="w-full h-0.5 bg-wip-border mb-10" />
 
             {/* Post content */}
             <div className="prose max-w-none">
@@ -107,7 +107,7 @@ export default async function PostPage({ params }: PostPageProps) {
                   <img
                     src={post.infographic_url!}
                     alt={`Infographic for ${post.title}`}
-                    className="w-full rounded-xl border border-wip-border shadow-2xl"
+                    className="w-full rounded-xl border border-wip-border shadow-lg"
                   />
                 </div>
               )}
@@ -125,9 +125,8 @@ export default async function PostPage({ params }: PostPageProps) {
               affiliateTag={affiliateTag}
             />
 
-            {/* Subscription invite - appears after article content as quiet continuation
-                Positioned after understanding, not before. Feels like "I want help using this." */}
-            <div className="mt-16 pt-12 border-t border-wip-border/30">
+            {/* LOAD-BEARING: Clear structural separation */}
+            <div className="mt-16 pt-12 border-t-2 border-wip-border">
               <SubscriptionInvite />
             </div>
           </div>

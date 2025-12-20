@@ -5,22 +5,33 @@
 @tailwind utilities;
 
 :root {
-  --wip-dark: #0a0f1a;
-  --wip-navy: #111827;
-  --wip-card: #1a2332;
-  --wip-border: #2a3544;
-  --wip-gold: #f59e0b;
-  --wip-gold-dark: #d97706;
-  --wip-text: #e5e7eb;
-  --wip-muted: #9ca3af;
+  /* LOAD-BEARING AESTHETIC: Structural clarity for difficult content
+     Colors from hero photo, refined for visual weight and authority
+     Reader should feel supported enough to engage with hard truths */
+  
+  /* Background: Warm tan - stable ground */
+  --wip-dark: #e8e2d9;        /* Main background - warm tan/stone */
+  --wip-navy: #d9d2c6;        /* Secondary - darker for contrast */
+  --wip-card: #f7f5f1;        /* Cards - lifted off background */
+  
+  /* Borders: Strengthened for structural clarity */
+  --wip-border: #b8ad9a;      /* Borders - more visible, load-bearing */
+  
+  /* Text: Charcoal/graphite for authority */
+  --wip-heading: #262320;     /* Headings - charcoal, authoritative */
+  --wip-text: #363330;        /* Body text - warm dark gray */
+  --wip-muted: #6b655a;       /* Metadata - clearly secondary */
+  
+  /* Accent: Gold - deliberate, grounded */
+  --wip-gold: #a6863f;        /* Gold - slightly muted for gravitas */
+  --wip-gold-dark: #8a6f32;   /* Darker gold - firm hover state */
 }
 
 body {
   font-family: 'DM Sans', system-ui, sans-serif;
+  /* GROUNDED: Solid background, no gradients or blur effects
+     Removes ethereal quality in favor of stable ground */
   background-color: var(--wip-dark);
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(245, 158, 11, 0.05), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(10, 15, 26, 0.8), transparent 40%);
   color: var(--wip-text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -33,34 +44,42 @@ body {
   }
 }
 
-/* Prose styling for blog content */
+/* Prose styling for blog content
+   LOAD-BEARING: Typography hierarchy signals structure and authority
+   Headings use charcoal for weight without harshness */
 .prose {
   @apply text-wip-text leading-relaxed;
 }
 
 .prose h1 {
-  @apply text-3xl md:text-4xl font-bold text-white mb-6 mt-8;
+  /* Charcoal heading - authoritative through weight, not size */
+  @apply text-3xl md:text-4xl font-extrabold mb-6 mt-10 tracking-tight;
+  color: var(--wip-heading);
 }
 
 .prose h2 {
-  @apply text-2xl md:text-3xl font-semibold text-white mb-4 mt-8;
+  /* Clear hierarchy - firm but not aggressive */
+  @apply text-2xl md:text-3xl font-bold mb-5 mt-8 tracking-tight;
+  color: var(--wip-heading);
 }
 
 .prose h3 {
-  @apply text-xl md:text-2xl font-semibold text-white mb-3 mt-6;
+  /* Structural subheading - visible authority */
+  @apply text-xl md:text-2xl font-bold mb-4 mt-6;
+  color: var(--wip-heading);
 }
 
 .prose p {
-  @apply mb-4 text-wip-text;
+  @apply mb-6 text-wip-text;  /* Increased from mb-4 for more breathing room */
 }
 
 .prose ul,
 .prose ol {
-  @apply mb-4 pl-6;
+  @apply mb-6 pl-6;  /* Increased spacing */
 }
 
 .prose li {
-  @apply mb-2 text-wip-text;
+  @apply mb-3 text-wip-text;  /* More space between list items */
 }
 
 .prose ul li {
@@ -72,23 +91,68 @@ body {
 }
 
 .prose strong {
-  @apply text-white font-semibold;
+  @apply text-wip-text font-semibold;  /* Use text color instead of white */
 }
 
 .prose blockquote {
-  @apply border-l-4 border-wip-gold pl-4 italic text-wip-muted my-4;
+  /* GROUNDED: Blockquotes feel placed, not floating */
+  @apply border-l-4 border-wip-gold pl-6 italic text-wip-muted my-6 bg-wip-navy/50 py-4 pr-4 rounded-r;
 }
 
 .prose code {
-  @apply bg-wip-card px-2 py-1 rounded text-wip-gold text-sm;
+  @apply bg-wip-navy px-2 py-1 rounded text-wip-gold text-sm border border-wip-border/50;  /* Visible container */
 }
 
 .prose pre {
-  @apply bg-wip-card p-4 rounded-lg overflow-x-auto my-4;
+  @apply bg-wip-navy p-4 rounded-lg overflow-x-auto my-6 border border-wip-border;  /* Clear boundary */
 }
 
 .prose a {
   @apply text-wip-gold hover:text-wip-gold-dark underline;
+}
+
+/* LOAD-BEARING: Horizontal rules as clear structural breaks */
+.prose hr {
+  @apply my-10;
+  border-color: var(--wip-border);
+  border-top-width: 2px;  /* Strengthened divider */
+}
+
+/* LEADERSHIP TOOL SECTION STYLING
+   These sections appear in articles and should feel like work surfaces.
+   Visually distinct from narrative text - signals utility.
+   Matches headings like "Bring This to Your Leadership Meeting", 
+   "The Question", "The Prompt", "The Action" */
+
+/* Style the leadership meeting section container */
+.prose h2 + ul,
+.prose h2 + ol,
+.prose h3 + ul,
+.prose h3 + ol {
+  /* Lists following headers get grounded container treatment */
+  @apply bg-wip-navy/70 border border-wip-border rounded-lg p-6 mb-8;
+}
+
+/* Strong labels within content signal tool structure */
+.prose strong {
+  @apply text-wip-text font-bold;
+}
+
+/* Tables as structured data surfaces */
+.prose table {
+  @apply w-full border-collapse my-6 bg-wip-card border border-wip-border rounded-lg overflow-hidden;
+}
+
+.prose th {
+  @apply bg-wip-navy text-wip-text font-bold text-left px-4 py-3 border-b border-wip-border;
+}
+
+.prose td {
+  @apply px-4 py-3 border-b border-wip-border/50 text-wip-text;
+}
+
+.prose tr:last-child td {
+  @apply border-b-0;
 }
 
 /* Smooth scroll */
@@ -96,8 +160,8 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Selection styling */
+/* Selection styling - adjusted for light theme */
 ::selection {
   background: var(--wip-gold);
-  color: var(--wip-dark);
+  color: var(--wip-text);
 }

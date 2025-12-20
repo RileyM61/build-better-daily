@@ -51,16 +51,16 @@ export default function SubscriptionInvite() {
 
     return (
         <>
-            {/* Quiet invitation section - appears after understanding, not before */}
+            {/* LOAD-BEARING: Subscription invite with structural container */}
             <div className="max-w-4xl mx-auto px-4 py-12">
-                <div className="text-center space-y-4">
+                <div className="text-center space-y-4 bg-wip-navy rounded-lg p-8 border-2 border-wip-border">
                     <p className="text-wip-muted text-sm leading-relaxed max-w-lg mx-auto">
                         I send one short note each week to help you bring this into your leadership meeting and turn it into action.
                     </p>
                     <Button
                         variant="outline"
                         onClick={() => setIsModalOpen(true)}
-                        className="text-wip-text border-wip-border hover:border-wip-gold/50"
+                        className="text-wip-heading"
                     >
                         Get the weekly leadership note
                     </Button>
@@ -73,7 +73,7 @@ export default function SubscriptionInvite() {
                         <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500 border border-green-500/20">
                             <CheckCircle2 className="w-8 h-8" />
                         </div>
-                        <h4 className="text-xl font-bold text-white mb-2">You&apos;re on the list</h4>
+                        <h4 className="text-xl font-bold text-wip-text mb-2">You&apos;re on the list</h4>
                         <p className="text-wip-muted">Check your inbox for the next weekly note.</p>
                     </div>
                 ) : (
@@ -91,7 +91,7 @@ export default function SubscriptionInvite() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="you@company.com"
-                                    className="w-full px-4 py-3 rounded-lg bg-wip-dark border border-wip-border text-white placeholder:text-wip-muted/50 focus:outline-none focus:ring-2 focus:ring-wip-gold/50 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-wip-navy/50 border border-wip-border text-wip-text placeholder:text-wip-muted/50 focus:outline-none focus:ring-2 focus:ring-wip-gold/50 focus:border-wip-gold/50 transition-all"
                                 />
                             </div>
                             <Button

@@ -48,10 +48,10 @@ export default function Hero() {
     return (
         <>
             <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
-                {/* Background Image with Overlay */}
+                {/* Background Image with Overlay - clean darkening without haze */}
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 bg-wip-navy/80 mix-blend-multiply z-10" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-wip-navy/50 to-wip-navy/90 z-10" />
+                    <div className="absolute inset-0 bg-black/40 z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/50 z-10" />
                     <Image
                         src="/images/hero-construction.png"
                         alt="Construction Site"
@@ -62,21 +62,22 @@ export default function Hero() {
                 </div>
 
                 <div className="max-w-4xl mx-auto px-4 text-center relative z-20 pt-20">
+                    {/* GROUNDED: Solid badge, no blur */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8 backdrop-blur-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 border border-white/30 mb-8"
                     >
                         <span className="w-2 h-2 bg-wip-gold rounded-full animate-pulse" />
-                        <span className="text-wip-gold text-sm font-bold tracking-wide uppercase">Clarity for Construction Leaders</span>
+                        <span className="text-wip-gold text-base font-black tracking-wider uppercase drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]" style={{ textShadow: '0 1px 0 rgba(0,0,0,0.3)' }}>Clarity for Construction Leaders</span>
                     </motion.div>
 
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-tight drop-shadow-lg"
+                        className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1] tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"
                     >
                         Master the <span className="text-gradient-gold">Business</span><br />
                         of Building
@@ -86,7 +87,7 @@ export default function Hero() {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed mb-10 drop-shadow-md"
+                        className="text-lg md:text-xl text-white font-medium max-w-2xl mx-auto leading-relaxed mb-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                     >
                         Real talk about cash flow, leadership, and building a construction business that actually works.
                         No fluff. No jargon. Just clarity.
@@ -112,7 +113,7 @@ export default function Hero() {
                         <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500 border border-green-500/20">
                             <CheckCircle2 className="w-8 h-8" />
                         </div>
-                        <h4 className="text-xl font-bold text-white mb-2">You&apos;re on the list!</h4>
+                        <h4 className="text-xl font-bold text-wip-text mb-2">You&apos;re on the list!</h4>
                         <p className="text-wip-muted">Thanks for subscribing. Keep an eye on your inbox.</p>
                     </div>
                 ) : (
@@ -130,7 +131,7 @@ export default function Hero() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="you@company.com"
-                                    className="w-full px-4 py-3 rounded-lg bg-wip-dark border border-wip-border text-white placeholder:text-wip-muted/50 focus:outline-none focus:ring-2 focus:ring-wip-gold/50 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-wip-navy/50 border border-wip-border text-wip-text placeholder:text-wip-muted/50 focus:outline-none focus:ring-2 focus:ring-wip-gold/50 focus:border-wip-gold/50 transition-all"
                                 />
                             </div>
                             <Button
