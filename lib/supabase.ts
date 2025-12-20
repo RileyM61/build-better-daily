@@ -179,7 +179,7 @@ export async function getPosts(limit?: number): Promise<Post[]> {
     const supabase = createServerClient()
 
     // Fetch all published posts (don't apply limit yet - need to sort first)
-    let query = supabase
+    const query = supabase
       .from('posts')
       .select('*')
       .eq('published', true)
