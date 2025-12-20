@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { getSession } from '@/lib/auth'
 import { createBrowserClient } from '@/lib/supabase'
-import type { Post, Book } from '@/lib/supabase'
+import type { Post, Book, WeeklyEmail } from '@/lib/supabase'
 
 export default function EditPostPage() {
   const params = useParams()
@@ -27,6 +27,8 @@ export default function EditPostPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [infographicUrl, setInfographicUrl] = useState('')
   const [uploadingInfo, setUploadingInfo] = useState(false)
+  const [email, setEmail] = useState<WeeklyEmail | null>(null)
+  const [showEmail, setShowEmail] = useState(false)
 
   const fetchPost = useCallback(async () => {
     const supabase = createBrowserClient()
@@ -50,6 +52,18 @@ export default function EditPostPage() {
     setPublished(postData.published)
     setBooks(postData.books || [])
     setInfographicUrl(postData.infographic_url || '')
+    
+    // Fetch associated email
+    const { data: emailData, error: emailError } = await supabase
+      .from('weekly_emails')
+      .select('*')
+      .eq('post_id', id)
+      .single()
+    
+    if (!emailError && emailData) {
+      setEmail(emailData as WeeklyEmail)
+    }
+    
     setLoading(false)
   }, [id, router])
 
@@ -85,6 +99,33 @@ export default function EditPostPage() {
       setMessage({ type: 'error', text: 'Failed to save: ' + error.message })
     } else {
       setMessage({ type: 'success', text: 'Post saved successfully!' })
+    }
+    setSaving(false)
+  }
+
+  const handleSaveEmail = async () => {
+    if (!email) return
+    
+    setSaving(true)
+    setMessage(null)
+
+    const supabase = createBrowserClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('weekly_emails') as any)
+      .update({
+        subject: email.subject,
+        preheader: email.preheader,
+        body: email.body,
+        leadership_prompt: email.leadership_prompt,
+        watch_for: email.watch_for,
+        execution_nudge: email.execution_nudge,
+      })
+      .eq('id', email.id)
+
+    if (error) {
+      setMessage({ type: 'error', text: 'Failed to save email: ' + error.message })
+    } else {
+      setMessage({ type: 'success', text: 'Email saved successfully!' })
     }
     setSaving(false)
   }
@@ -155,6 +196,14 @@ export default function EditPostPage() {
             </Link>
           </div>
           <div className="flex items-center gap-3">
+            {email && (
+              <button
+                onClick={() => setShowEmail(!showEmail)}
+                className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
+              >
+                {showEmail ? 'Hide Email' : 'View Email'}
+              </button>
+            )}
             <button
               onClick={() => setShowPreview(!showPreview)}
               className="px-4 py-2 bg-wip-dark border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
@@ -186,6 +235,85 @@ export default function EditPostPage() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Email Editor */}
+        {showEmail && email && (
+          <div className="bg-wip-card border border-wip-border rounded-xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-white">Weekly Email Companion</h2>
+              <button
+                onClick={handleSaveEmail}
+                disabled={saving}
+                className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Email'}
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Subject</label>
+                <input
+                  type="text"
+                  value={email.subject}
+                  onChange={(e) => setEmail({ ...email, subject: e.target.value })}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Preheader</label>
+                <input
+                  type="text"
+                  value={email.preheader || ''}
+                  onChange={(e) => setEmail({ ...email, preheader: e.target.value })}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors"
+                  placeholder="Preview text"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Body</label>
+                <textarea
+                  value={email.body}
+                  onChange={(e) => setEmail({ ...email, body: e.target.value })}
+                  rows={8}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-y"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Leadership Prompt</label>
+                <textarea
+                  value={email.leadership_prompt}
+                  onChange={(e) => setEmail({ ...email, leadership_prompt: e.target.value })}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Watch For</label>
+                <textarea
+                  value={email.watch_for}
+                  onChange={(e) => setEmail({ ...email, watch_for: e.target.value })}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-wip-text mb-2">Execution Nudge</label>
+                <textarea
+                  value={email.execution_nudge}
+                  onChange={(e) => setEmail({ ...email, execution_nudge: e.target.value })}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-wip-dark border border-wip-border rounded-lg text-white focus:outline-none focus:border-wip-gold transition-colors resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {showPreview ? (
           /* Preview Mode */
           <div className="bg-wip-card border border-wip-border rounded-xl p-8">

@@ -7,8 +7,12 @@ import { getSession, signOut } from '@/lib/auth'
 import { createBrowserClient } from '@/lib/supabase'
 import type { Post } from '@/lib/supabase'
 
+interface PostWithEmail extends Post {
+  hasEmail?: boolean
+}
+
 export default function AdminDashboard() {
-  const [posts, setPosts] = useState<Post[]>([])
+  const [posts, setPosts] = useState<PostWithEmail[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
@@ -35,7 +39,19 @@ export default function AdminDashboard() {
     if (error) {
       console.error('Error fetching posts:', error)
     } else {
-      setPosts(data as Post[])
+      // Check which posts have emails
+      const postsWithEmailStatus = await Promise.all(
+        (data as Post[]).map(async (post) => {
+          const { data: emailData } = await supabase
+            .from('weekly_emails')
+            .select('id')
+            .eq('post_id', post.id)
+            .single()
+          
+          return { ...post, hasEmail: !!emailData } as PostWithEmail
+        })
+      )
+      setPosts(postsWithEmailStatus)
     }
     setLoading(false)
   }
@@ -193,12 +209,19 @@ export default function AdminDashboard() {
                 {posts.map((post) => (
                   <tr key={post.id} className="hover:bg-wip-dark/30 transition-colors">
                     <td className="px-4 py-4">
-                      <Link
-                        href={`/admin/posts/${post.id}`}
-                        className="text-white hover:text-wip-gold transition-colors font-medium"
-                      >
-                        {post.title}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/admin/posts/${post.id}`}
+                          className="text-white hover:text-wip-gold transition-colors font-medium"
+                        >
+                          {post.title}
+                        </Link>
+                        {post.hasEmail && (
+                          <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/30" title="Has email companion">
+                            📧
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-wip-muted mt-1 line-clamp-1">{post.excerpt}</p>
                     </td>
                     <td className="px-4 py-4">
