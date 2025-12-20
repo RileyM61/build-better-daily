@@ -8,16 +8,66 @@ export interface Book {
   description: string
 }
 
+/**
+ * Leadership Tool - embedded in each post
+ * This is what makes the article usable in a leadership meeting.
+ */
+export interface LeadershipTool {
+  question: string
+  prompt: string
+  action: string
+}
+
+/**
+ * Content Pillar type for editorial categorization
+ */
+export type ContentPillar = 
+  | 'Think Like an Investor (Operator Edition)'
+  | 'Financial Clarity Without Accounting Theater'
+  | 'Operational Discipline That Reduces Chaos'
+  | 'Leadership Reality in Small Companies'
+  | 'Building Value Without Burning Your Life Down'
+
+/**
+ * Article Archetype type for editorial structure
+ */
+export type ArticleArchetype =
+  | 'Misconception Kill Shot'
+  | 'Operator Reality Check'
+  | 'Decision Framework'
+  | 'Failure-Earned Insight'
+  | 'Quiet Discipline Piece'
+  | 'Value vs Life Tension Piece'
+
 export interface Post {
   id: string
   title: string
   slug: string
   content: string
   excerpt: string
+  pillar?: ContentPillar           // Editorial pillar (weekly system)
+  archetype?: ArticleArchetype     // Article archetype (weekly system)
+  leadership_tool?: LeadershipTool // Leadership meeting tool (weekly system)
   books: Book[]
   infographic_url?: string
   created_at: string
   published: boolean
+}
+
+/**
+ * Weekly Email Companion - sent alongside the article
+ */
+export interface WeeklyEmail {
+  id: string
+  post_id: string                  // Links to the parent post
+  subject: string
+  preheader: string
+  body: string
+  leadership_prompt: string
+  watch_for: string
+  execution_nudge: string
+  created_at: string
+  sent: boolean
 }
 
 export interface Subscriber {
@@ -199,5 +249,41 @@ export async function createPost(post: Omit<Post, 'id' | 'created_at'>): Promise
   }
 
   return data as Post
+}
+
+// Helper to create a weekly email companion
+export async function createWeeklyEmail(email: Omit<WeeklyEmail, 'id' | 'created_at'>): Promise<WeeklyEmail | null> {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from('weekly_emails')
+    .insert([email])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating weekly email:', error)
+    throw new Error(`Database error: ${error.message} (Code: ${error.code})`)
+  }
+
+  return data as WeeklyEmail
+}
+
+// Helper to get the email companion for a post
+export async function getWeeklyEmailByPostId(postId: string): Promise<WeeklyEmail | null> {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from('weekly_emails')
+    .select('*')
+    .eq('post_id', postId)
+    .single()
+
+  if (error) {
+    console.error('Error fetching weekly email:', error)
+    return null
+  }
+
+  return data as WeeklyEmail
 }
 

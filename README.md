@@ -1,14 +1,39 @@
-# WIP Wisdom Blog
+# Build Better Daily — Weekly Leadership System
 
-An automated blog about construction business management, powered by AI. New posts are generated daily using Claude API and stored in Supabase.
+A weekly leadership tool generator for construction company owners. Each Monday, the system generates one high-quality leadership article designed to drive clarity, conversation, and action in leadership meetings.
 
-## Features
+## System Philosophy
 
-- **Automated Content Generation**: Claude AI writes daily blog posts about construction business topics
-- **Smart Topic Selection**: AI avoids duplicate topics by tracking previously covered subjects
-- **Book Recommendations**: Each post includes 3 relevant Amazon affiliate book recommendations
-- **Mobile-First Design**: Dark, minimal design inspired by wip-insights.com
-- **SEO Optimized**: Proper meta tags, semantic HTML, and fast loading
+**This is NOT a content feed. This is a leadership tool.**
+
+- **Weekly cadence**: One article per week, designed for depth over volume
+- **Meeting-ready**: Every article includes a "Bring This to Your Leadership Meeting" section
+- **Intentionally constrained**: Claude follows a strict editorial playbook
+- **Email companion**: Each article comes with a meeting-focused email nudge
+
+## Editorial Constraints
+
+### Content Pillars (exactly one per article)
+1. Think Like an Investor (Operator Edition)
+2. Financial Clarity Without Accounting Theater
+3. Operational Discipline That Reduces Chaos
+4. Leadership Reality in Small Companies
+5. Building Value Without Burning Your Life Down
+
+### Article Archetypes (exactly one per article)
+1. Misconception Kill Shot
+2. Operator Reality Check
+3. Decision Framework
+4. Failure-Earned Insight
+5. Quiet Discipline Piece
+6. Value vs Life Tension Piece
+
+### Anti-Patterns (Claude will fail if these appear)
+- Listicles ("5 tips", "7 ways")
+- Motivational language
+- Hustle/grind framing
+- Generic best practices
+- Marketing CTAs
 
 ## Tech Stack
 
@@ -17,7 +42,7 @@ An automated blog about construction business management, powered by AI. New pos
 - **AI**: Claude API (Anthropic)
 - **Styling**: Tailwind CSS
 - **Hosting**: Vercel
-- **Scheduler**: Vercel Cron Jobs
+- **Scheduler**: Vercel Cron Jobs (Weekly)
 
 ## Setup
 
@@ -25,7 +50,7 @@ An automated blog about construction business management, powered by AI. New pos
 
 ```bash
 git clone <your-repo>
-cd wip-blog
+cd build-better-daily
 npm install
 ```
 
@@ -38,18 +63,18 @@ cp env.example .env.local
 ```
 
 Required variables:
-- `ANTHROPIC_API_KEY` - Your Claude API key from [console.anthropic.com](https://console.anthropic.com)
+- `ANTHROPIC_API_KEY` - Your Claude API key
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key (found in project settings)
-- `AMAZON_AFFILIATE_TAG` - Your Amazon Associates tag (e.g., `yourtag-20`)
+- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
 - `CRON_SECRET` - A random string to secure the cron endpoint
 
 ### 3. Database Setup
 
-The Supabase table is already created. If you need to recreate it:
+Run the migrations in your Supabase SQL editor:
 
 ```sql
+-- First, create the base posts table if it doesn't exist
 CREATE TABLE IF NOT EXISTS posts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
@@ -61,8 +86,8 @@ CREATE TABLE IF NOT EXISTS posts (
   published BOOLEAN DEFAULT false NOT NULL
 );
 
-CREATE INDEX idx_posts_slug ON posts(slug);
-CREATE INDEX idx_posts_published_date ON posts(published, created_at DESC);
+-- Then run the weekly leadership system migration
+-- See: migrations/001_weekly_leadership_system.sql
 ```
 
 ### 4. Run Locally
@@ -73,46 +98,24 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000)
 
-## Deployment
+## Cron Configuration
 
-### Deploy to Vercel
+The system generates one article per week on Monday at 8 AM UTC.
 
-1. Push your code to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Add all environment variables in Vercel project settings
-4. Deploy!
-
-### Cron Configuration
-
-The blog generates one post daily at 8 AM UTC. This is configured in `vercel.json`.
-
-**For testing (every 5 minutes)**:
 ```json
 {
   "crons": [
     {
       "path": "/api/generate-post",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 8 * * 1"
     }
   ]
 }
 ```
 
-**For production (daily at 8 AM UTC)**:
-```json
-{
-  "crons": [
-    {
-      "path": "/api/generate-post",
-      "schedule": "0 8 * * *"
-    }
-  ]
-}
-```
+### Manual Generation
 
-### Manual Post Generation
-
-You can manually trigger post generation:
+You can manually trigger generation for testing:
 
 ```bash
 curl -X POST https://your-domain.vercel.app/api/generate-post \
@@ -123,22 +126,33 @@ curl -X POST https://your-domain.vercel.app/api/generate-post \
 
 ```
 ├── app/
-│   ├── api/generate-post/   # Cron endpoint for AI content generation
-│   ├── post/[slug]/         # Individual blog post page
-│   ├── page.tsx             # Homepage with blog listing
-│   └── layout.tsx           # Root layout with metadata
+│   ├── api/generate-post/   # Weekly generation endpoint
+│   ├── post/[slug]/         # Individual article page
+│   ├── page.tsx             # Homepage
+│   └── layout.tsx           # Root layout
 ├── components/
-│   ├── Header.tsx           # Site header with navigation
-│   ├── Footer.tsx           # Site footer
-│   ├── PostCard.tsx         # Blog post preview card
-│   └── BookRecommendation.tsx # Amazon affiliate book section
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── PostCard.tsx
+│   └── BookRecommendation.tsx
 ├── lib/
-│   ├── supabase.ts          # Supabase client and helpers
-│   └── claude.ts            # Claude API integration
-└── vercel.json              # Cron job configuration
+│   ├── supabase.ts          # Database client and types
+│   └── claude.ts            # Editorial playbook + generation
+├── migrations/
+│   └── 001_weekly_leadership_system.sql
+└── vercel.json              # Weekly cron configuration
 ```
+
+## Non-Goals
+
+This system intentionally does NOT optimize for:
+- SEO rankings
+- Traffic growth
+- Engagement metrics
+- Content volume
+
+It optimizes for: **depth, usefulness, and trust.**
 
 ## License
 
 MIT
-
