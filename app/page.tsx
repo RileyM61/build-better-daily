@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PostCard from '@/components/PostCard'
 import Hero from '@/components/Hero'
+import SubscriptionInvite from '@/components/SubscriptionInvite'
 import { getPosts } from '@/lib/supabase'
 
 export const revalidate = 60 // Revalidate every minute
@@ -42,17 +43,24 @@ export default async function HomePage() {
               // Posts are sorted: is_read_first posts first (pinned instructional content),
               // then regular posts by date. This ensures "Read This First" is always visible.
               <div className="grid gap-6">
-                {posts.map((post, index) => (
-                  <PostCard
-                    key={post.id}
-                    title={post.title}
-                    slug={post.slug}
-                    excerpt={post.excerpt}
-                    createdAt={post.created_at}
-                    index={index}
-                    isReadFirst={post.is_read_first || false}
-                  />
-                ))}
+                {posts.map((post, index) => {
+                  const isFirstReadFirst = index === 0 && post.is_read_first
+                  return (
+                    <div key={post.id}>
+                      <PostCard
+                        title={post.title}
+                        slug={post.slug}
+                        excerpt={post.excerpt}
+                        createdAt={post.created_at}
+                        index={index}
+                        isReadFirst={post.is_read_first || false}
+                      />
+                      {/* Subscription invite appears after "Read First" post - 
+                          positioned after understanding, not before */}
+                      {isFirstReadFirst && <SubscriptionInvite />}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>

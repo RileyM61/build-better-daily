@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, Mail, Loader2, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Loader2, CheckCircle2 } from 'lucide-react'
 import { Button } from './Button'
 import Modal from './Modal'
 
@@ -96,20 +96,11 @@ export default function Hero() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                        className="flex items-center justify-center"
                     >
-                        <Button size="lg" className="w-full sm:w-auto gap-2 group shadow-xl shadow-black/20" onClick={handleScrollToPosts}>
+                        <Button size="lg" className="gap-2 group shadow-xl shadow-black/20" onClick={handleScrollToPosts}>
                             Start Reading
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            className="w-full sm:w-auto gap-2 bg-white/5 border-white/30 text-white hover:bg-white/10 hover:text-white"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            <Mail className="w-4 h-4" />
-                            Subscribe
                         </Button>
                     </motion.div>
                 </div>
