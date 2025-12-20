@@ -10,6 +10,8 @@ import type { Post } from '@/lib/supabase'
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -73,6 +75,37 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleGeneratePost = async () => {
+    setGenerating(true)
+    setGenerateError(null)
+    
+    try {
+      // Prompt for the cron secret
+      const secret = prompt('Enter your CRON_SECRET to generate a new post:')
+      if (!secret) {
+        setGenerating(false)
+        return
+      }
+
+      const response = await fetch(`/api/generate-post?secret=${encodeURIComponent(secret)}`)
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.details || data.error || 'Failed to generate post')
+      }
+      
+      // Success - refresh posts list
+      alert(`Successfully generated: "${data.post?.title || 'New Post'}"`)
+      fetchPosts()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      setGenerateError(message)
+      alert(`Generation failed: ${message}`)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-wip-dark flex items-center justify-center">
@@ -118,15 +151,20 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-white">Blog Posts</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Blog Posts</h1>
+            {generateError && (
+              <p className="text-red-400 text-sm mt-1">{generateError}</p>
+            )}
+          </div>
           <div className="flex gap-3">
-            <a
-              href="/api/generate-post?secret=my-secret-cron-key-12345"
-              target="_blank"
-              className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
+            <button
+              onClick={handleGeneratePost}
+              disabled={generating}
+              className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate New Post
-            </a>
+              {generating ? 'Generating...' : 'Generate New Post'}
+            </button>
             <Link
               href="/admin/posts/new"
               className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm"
