@@ -29,6 +29,7 @@ export default function EditPostPage() {
   const [uploadingInfo, setUploadingInfo] = useState(false)
   const [email, setEmail] = useState<WeeklyEmail | null>(null)
   const [showEmail, setShowEmail] = useState(false)
+  const [sendingEmails, setSendingEmails] = useState(false)
 
   const fetchPost = useCallback(async () => {
     const supabase = createBrowserClient()
@@ -58,7 +59,7 @@ export default function EditPostPage() {
       .from('weekly_emails')
       .select('*')
       .eq('post_id', id)
-      .single()
+      .maybeSingle()
     
     if (!emailError && emailData) {
       setEmail(emailData as WeeklyEmail)
@@ -130,6 +131,56 @@ export default function EditPostPage() {
     setSaving(false)
   }
 
+  const handleSendEmails = async () => {
+    if (!published) {
+      alert('Post must be published before sending emails')
+      return
+    }
+
+    if (!email) {
+      alert('Weekly email must exist before sending')
+      return
+    }
+
+    if (!confirm(`Send weekly emails to all active subscribers for "${title}"?`)) {
+      return
+    }
+
+    setSendingEmails(true)
+    setMessage(null)
+
+    try {
+      const secret = prompt('Enter your CRON_SECRET to send emails:')
+      if (!secret) {
+        setSendingEmails(false)
+        return
+      }
+
+      const response = await fetch(`/api/send-weekly-emails?post_id=${id}&secret=${encodeURIComponent(secret)}`, {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send emails')
+      }
+
+      setMessage({
+        type: 'success',
+        text: `Emails sent successfully! Sent to ${data.sent} subscribers${data.failed > 0 ? ` (${data.failed} failed)` : ''}`
+      })
+
+      // Refresh email to get updated sent status
+      fetchPost()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      setMessage({ type: 'error', text: `Failed to send emails: ${message}` })
+    } finally {
+      setSendingEmails(false)
+    }
+  }
+
   const updateBook = (index: number, field: keyof Book, value: string) => {
     const newBooks = [...books]
     newBooks[index] = { ...newBooks[index], [field]: value }
@@ -197,12 +248,28 @@ export default function EditPostPage() {
           </div>
           <div className="flex items-center gap-3">
             {email && (
-              <button
-                onClick={() => setShowEmail(!showEmail)}
-                className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
-              >
-                {showEmail ? 'Hide Email' : 'View Email'}
-              </button>
+              <>
+                <button
+                  onClick={() => setShowEmail(!showEmail)}
+                  className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
+                >
+                  {showEmail ? 'Hide Email' : 'View Email'}
+                </button>
+                {published && !email.sent && (
+                  <button
+                    onClick={handleSendEmails}
+                    disabled={sendingEmails}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {sendingEmails ? 'Sending...' : 'Send Weekly Emails'}
+                  </button>
+                )}
+                {email.sent && (
+                  <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm border border-green-500/30">
+                    ✓ Sent ({email.sent_count || 0} subscribers)
+                  </span>
+                )}
+              </>
             )}
             <button
               onClick={() => setShowPreview(!showPreview)}

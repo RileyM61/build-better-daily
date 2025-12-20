@@ -3,11 +3,29 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
     try {
-        const { email } = await request.json()
+        const { email, leadership_meeting_day, delivery_window } = await request.json()
 
         if (!email || !email.includes('@')) {
             return NextResponse.json(
                 { error: 'Invalid email address' },
+                { status: 400 }
+            )
+        }
+
+        // Validate delivery preferences if provided
+        const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        const validWindows = ['morning', 'before']
+        
+        if (leadership_meeting_day && !validDays.includes(leadership_meeting_day)) {
+            return NextResponse.json(
+                { error: 'Invalid leadership meeting day' },
+                { status: 400 }
+            )
+        }
+        
+        if (delivery_window && !validWindows.includes(delivery_window)) {
+            return NextResponse.json(
+                { error: 'Invalid delivery window' },
                 { status: 400 }
             )
         }
@@ -17,20 +35,38 @@ export async function POST(request: NextRequest) {
             const supabase = createServerClient()
             const { error } = await supabase
                 .from('subscribers')
-                .insert([{ email }])
+                .insert([{ 
+                    email,
+                    leadership_meeting_day: leadership_meeting_day || null,
+                    delivery_window: delivery_window || null,
+                    unsubscribed: false
+                }])
 
             if (error) {
-                // If table doesn't exist or other db error, we'll log it but fallback
-                // so the user still gets a success message (since this is "coming soon")
+                // Check if it's a duplicate email error
+                if (error.code === '23505') {
+                    return NextResponse.json(
+                        { error: 'This email is already subscribed' },
+                        { status: 409 }
+                    )
+                }
                 console.warn('Failed to save subscriber to Supabase:', error)
+                return NextResponse.json(
+                    { error: 'Failed to save subscription' },
+                    { status: 500 }
+                )
             }
         } catch (dbError) {
             console.warn('Supabase not configured or unreachable:', dbError)
+            return NextResponse.json(
+                { error: 'Database error' },
+                { status: 500 }
+            )
         }
 
-        // Always return success for the "coming soon" experience
         return NextResponse.json({ success: true })
-    } catch {
+    } catch (error) {
+        console.error('Subscribe error:', error)
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

@@ -68,11 +68,17 @@ export interface WeeklyEmail {
   execution_nudge: string
   created_at: string
   sent: boolean
+  sent_at?: string | null
+  sent_count?: number
 }
 
 export interface Subscriber {
   id: string
   email: string
+  leadership_meeting_day?: string | null  // e.g., "Monday", "Tuesday"
+  delivery_window?: string | null         // "morning" | "before"
+  unsubscribed: boolean
+  unsubscribed_at?: string | null
   created_at: string
 }
 
@@ -285,5 +291,45 @@ export async function getWeeklyEmailByPostId(postId: string): Promise<WeeklyEmai
   }
 
   return data as WeeklyEmail
+}
+
+// Helper to get all active subscribers
+export async function getActiveSubscribers(): Promise<Subscriber[]> {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from('subscribers')
+    .select('*')
+    .eq('unsubscribed', false)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching subscribers:', error)
+    return []
+  }
+
+  return data as Subscriber[]
+}
+
+// Helper to update weekly email sent status
+export async function updateWeeklyEmailSentStatus(
+  emailId: string,
+  sentCount: number
+): Promise<void> {
+  const supabase = createServerClient()
+
+  const { error } = await supabase
+    .from('weekly_emails')
+    .update({
+      sent: true,
+      sent_at: new Date().toISOString(),
+      sent_count: sentCount,
+    })
+    .eq('id', emailId)
+
+  if (error) {
+    console.error('Error updating email sent status:', error)
+    throw new Error(`Failed to update email status: ${error.message}`)
+  }
 }
 
