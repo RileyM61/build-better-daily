@@ -278,12 +278,40 @@ Return an error explaining which constraint you cannot meet.
 Do not produce weak content to satisfy a request.`
 
 // =============================================================================
+// ERROR CLASSES
+// =============================================================================
+
+/**
+ * Custom error for anti-pattern violations
+ * This allows the retry mechanism to catch and provide feedback
+ */
+export class AntiPatternError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'AntiPatternError'
+  }
+}
+
+// =============================================================================
 // ARTICLE GENERATION
 // =============================================================================
 
-export async function generateBlogPost(existingTitles: string[]): Promise<GeneratedPost> {
+/**
+ * Internal function that performs a single generation attempt
+ * @param existingTitles - Titles to avoid duplicating
+ * @param feedback - Array of previous rejection reasons (for retries)
+ */
+async function generateBlogPostAttempt(
+  existingTitles: string[],
+  feedback: string[] = []
+): Promise<GeneratedPost> {
   const titlesContext = existingTitles.length > 0
     ? `\n\nAVOID THESE TOPICS (already covered):\n${existingTitles.map(t => `- ${t}`).join('\n')}`
+    : ''
+
+  // Build feedback context if this is a retry
+  const feedbackContext = feedback.length > 0
+    ? `\n\n⚠️ PREVIOUS ATTEMPT REJECTED:\n${feedback.map(f => `- ${f}`).join('\n')}\n\nCRITICAL: Rewrite the article WITHOUT these violations. Be extra careful to avoid these patterns.`
     : ''
 
   const response = await anthropic.messages.create({
@@ -293,7 +321,7 @@ export async function generateBlogPost(existingTitles: string[]): Promise<Genera
       {
         role: 'user',
         content: `Generate a weekly leadership article following the editorial playbook exactly.
-
+${feedbackContext}
 CONTENT PILLARS (choose exactly ONE):
 1. Think Like an Investor (Operator Edition)
 2. Financial Clarity Without Accounting Theater
@@ -419,7 +447,7 @@ If you cannot satisfy all editorial constraints, return: {"error": "explanation 
     
     for (const { pattern, name } of antiPatterns) {
       if (pattern.test(post.content)) {
-        throw new Error(`Anti-pattern detected: ${name}. Article rejected.`)
+        throw new AntiPatternError(`Anti-pattern detected: ${name}. Article rejected.`)
       }
     }
     
@@ -428,6 +456,55 @@ If you cannot satisfy all editorial constraints, return: {"error": "explanation 
     console.error('Failed to parse Claude response:', textContent.text)
     throw new Error(`Failed to parse generated post: ${parseError}`)
   }
+}
+
+/**
+ * Retry wrapper for article generation with feedback loop
+ * Catches AntiPatternError and retries with feedback up to maxAttempts times
+ */
+async function generateWithRetry(
+  existingTitles: string[],
+  maxAttempts: number = 3
+): Promise<GeneratedPost> {
+  let lastError: Error | null = null
+  const feedback: string[] = []
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const post = await generateBlogPostAttempt(existingTitles, feedback)
+      if (attempt > 1) {
+        console.log(`✓ Success on attempt ${attempt} after incorporating feedback`)
+      }
+      return post // Success
+    } catch (error) {
+      if (error instanceof AntiPatternError) {
+        // Add feedback for next attempt
+        feedback.push(error.message)
+        lastError = error
+        console.log(`Attempt ${attempt}/${maxAttempts} rejected: ${error.message}. Retrying...`)
+        
+        if (attempt === maxAttempts) {
+          // Final attempt failed - throw with all feedback
+          throw new Error(
+            `Failed after ${maxAttempts} attempts. Violations:\n${feedback.map(f => `- ${f}`).join('\n')}`
+          )
+        }
+      } else {
+        // Non-recoverable error (parsing, API, etc.) - throw immediately
+        throw error
+      }
+    }
+  }
+  
+  // Should never reach here, but TypeScript needs it
+  throw new Error(`Failed after ${maxAttempts} attempts. Last error: ${lastError?.message}`)
+}
+
+/**
+ * Public function: Generate a blog post with automatic retry on anti-pattern violations
+ */
+export async function generateBlogPost(existingTitles: string[]): Promise<GeneratedPost> {
+  return generateWithRetry(existingTitles, 3)
 }
 
 // =============================================================================
