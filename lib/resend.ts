@@ -40,9 +40,9 @@ export function buildLeadershipEmailHTML(
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   
-  <!-- Article Link (top, understated) -->
-  <p style="font-size: 14px; color: #666; margin-bottom: 24px;">
-    <a href="${articleUrl}" style="color: #666; text-decoration: none;">Read the full article →</a>
+  <!-- Orientation Line -->
+  <p style="font-size: 14px; color: #666; margin-bottom: 16px; font-style: italic;">
+    This is your weekly leadership prompt — designed to be brought into the room, not just read.
   </p>
   
   <!-- Opening Frame (1 paragraph) -->
@@ -72,7 +72,7 @@ export function buildLeadershipEmailHTML(
   
   <!-- Friction Warning -->
   <p style="font-size: 16px; margin: 24px 0;">
-    <strong style="color: #333;">Watch for this:</strong><br>
+    <strong style="color: #333;">What will derail this conversation:</strong><br>
     <span style="color: #555;">${weeklyEmail.watch_for}</span>
   </p>
   
@@ -85,6 +85,12 @@ export function buildLeadershipEmailHTML(
   <!-- Article Link (bottom) -->
   <p style="font-size: 14px; color: #666; margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">
     <a href="${articleUrl}" style="color: #666; text-decoration: none;">Read the full article →</a>
+  </p>
+  
+  <!-- Signature -->
+  <p style="font-size: 16px; margin-top: 32px; color: #333;">
+    Martin<br>
+    <span style="color: #666;">— Build Better Daily</span>
   </p>
   
 </body>
