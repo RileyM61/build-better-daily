@@ -55,7 +55,7 @@ export default function SubscriptionInvite() {
             <div className="max-w-4xl mx-auto px-4 py-12">
                 <div className="text-center space-y-4">
                     <p className="text-wip-muted text-sm leading-relaxed max-w-lg mx-auto">
-                        I send one short note each week to help you use this with your leadership team.
+                        I send one short note each week to help you bring this into your leadership meeting and turn it into action.
                     </p>
                     <Button
                         variant="outline"

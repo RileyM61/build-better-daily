@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BookRecommendation from '@/components/BookRecommendation'
+import SubscriptionInvite from '@/components/SubscriptionInvite'
 import { getPostBySlug, getPosts } from '@/lib/supabase'
 
 export const revalidate = 60
@@ -123,6 +124,12 @@ export default async function PostPage({ params }: PostPageProps) {
               books={post.books}
               affiliateTag={affiliateTag}
             />
+
+            {/* Subscription invite - appears after article content as quiet continuation
+                Positioned after understanding, not before. Feels like "I want help using this." */}
+            <div className="mt-16 pt-12 border-t border-wip-border/30">
+              <SubscriptionInvite />
+            </div>
           </div>
         </article>
       </main>
