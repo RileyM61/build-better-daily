@@ -166,9 +166,20 @@ export default function EditPostPage() {
         throw new Error(data.error || 'Failed to send emails')
       }
 
+      let messageText = `Emails sent successfully! Sent to ${data.sent} subscribers`
+      if (data.failed > 0) {
+        messageText += ` (${data.failed} failed)`
+        if (data.failures && data.failures.length > 0) {
+          const failureDetails = data.failures.map((f: { email: string; error: string }) => 
+            `${f.email}: ${f.error}`
+          ).join('; ')
+          messageText += `\n\nFailures:\n${failureDetails}`
+        }
+      }
+      
       setMessage({
-        type: 'success',
-        text: `Emails sent successfully! Sent to ${data.sent} subscribers${data.failed > 0 ? ` (${data.failed} failed)` : ''}`
+        type: data.failed > 0 ? 'error' : 'success',
+        text: messageText
       })
 
       // Refresh email to get updated sent status

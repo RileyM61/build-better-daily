@@ -118,8 +118,12 @@ export async function sendWeeklyEmailToSubscriber(
     })
 
     if (error) {
-      console.error(`Failed to send email to ${subscriberEmail}:`, error)
-      return { success: false, error: error.message }
+      // Resend error can be an object with message, name, etc.
+      const errorMessage = typeof error === 'object' && error !== null
+        ? (error as { message?: string; name?: string }).message || JSON.stringify(error)
+        : String(error)
+      console.error(`Failed to send email to ${subscriberEmail}:`, errorMessage)
+      return { success: false, error: errorMessage }
     }
 
     console.log(`✓ Email sent to ${subscriberEmail} (ID: ${data?.id})`)
