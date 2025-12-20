@@ -79,6 +79,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Exclude instructional/onboarding posts from email automation
+    // These are infrastructure, not content, and should not be emailed
+    if (post.is_read_first) {
+      return NextResponse.json(
+        { error: 'Read First instructional posts are excluded from email automation' },
+        { status: 400 }
+      )
+    }
+
     // Verify post has leadership tool
     if (!post.leadership_tool) {
       return NextResponse.json(

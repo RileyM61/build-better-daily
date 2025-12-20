@@ -52,6 +52,7 @@ export interface Post {
   infographic_url?: string
   created_at: string
   published: boolean
+  is_read_first?: boolean          // Marks instructional/onboarding post (pinned, excluded from cadence)
 }
 
 /**
@@ -157,7 +158,16 @@ const MOCK_POSTS: Post[] = [
   }
 ]
 
-// Helper to get all published posts
+/**
+ * Helper to get all published posts
+ * 
+ * SORTING LOGIC:
+ * - Posts with is_read_first = true appear first (pinned instructional content)
+ * - Then regular posts sorted by created_at DESC (newest first)
+ * 
+ * This ensures the "Read This First" instructional post is always visible to new readers
+ * while maintaining chronological order for weekly articles.
+ */
 export async function getPosts(limit?: number): Promise<Post[]> {
   // Return mock data if Supabase is not configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -168,15 +178,11 @@ export async function getPosts(limit?: number): Promise<Post[]> {
   try {
     const supabase = createServerClient()
 
+    // Fetch all published posts (don't apply limit yet - need to sort first)
     let query = supabase
       .from('posts')
       .select('*')
       .eq('published', true)
-      .order('created_at', { ascending: false })
-
-    if (limit) {
-      query = query.limit(limit)
-    }
 
     const { data, error } = await query
 
@@ -185,7 +191,22 @@ export async function getPosts(limit?: number): Promise<Post[]> {
       return []
     }
 
-    return data as Post[]
+    // Sort: is_read_first posts first, then by created_at DESC
+    const sorted = (data as Post[]).sort((a, b) => {
+      // Pinned posts (is_read_first = true) always come first
+      if (a.is_read_first && !b.is_read_first) return -1
+      if (!a.is_read_first && b.is_read_first) return 1
+      
+      // Within same category, sort by date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+
+    // Apply limit if specified
+    if (limit) {
+      return sorted.slice(0, limit)
+    }
+
+    return sorted
   } catch (error) {
     console.warn('Error connecting to Supabase, returning mock data:', error)
     return MOCK_POSTS

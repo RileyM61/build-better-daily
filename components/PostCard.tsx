@@ -11,9 +11,10 @@ interface PostCardProps {
   excerpt: string
   createdAt: string
   index?: number
+  isReadFirst?: boolean
 }
 
-export default function PostCard({ title, slug, excerpt, createdAt, index = 0 }: PostCardProps) {
+export default function PostCard({ title, slug, excerpt, createdAt, index = 0, isReadFirst = false }: PostCardProps) {
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -28,7 +29,20 @@ export default function PostCard({ title, slug, excerpt, createdAt, index = 0 }:
       className="group"
     >
       <Link href={`/post/${slug}`} className="block h-full">
-        <div className="h-full p-8 rounded-2xl bg-wip-card/40 border border-wip-border/50 hover:border-wip-gold/30 hover:bg-wip-card/60 hover:shadow-[0_0_30px_-10px_rgba(245,158,11,0.1)] transition-all duration-300 flex flex-col">
+        <div className={`h-full p-8 rounded-2xl border transition-all duration-300 flex flex-col relative ${
+          isReadFirst 
+            ? 'bg-wip-card/50 border-wip-gold/30 hover:border-wip-gold/50 hover:bg-wip-card/70' 
+            : 'bg-wip-card/40 border-wip-border/50 hover:border-wip-gold/30 hover:bg-wip-card/60'
+        } hover:shadow-[0_0_30px_-10px_rgba(245,158,11,0.1)]`}>
+          {/* Read First Badge */}
+          {isReadFirst && (
+            <div className="absolute top-4 right-4">
+              <span className="text-xs font-medium text-wip-gold bg-wip-gold/10 px-2 py-1 rounded border border-wip-gold/20">
+                Read First
+              </span>
+            </div>
+          )}
+          
           <div className="flex items-center gap-2 text-wip-gold/80 text-xs font-medium bg-wip-gold/5 w-fit px-3 py-1 rounded-full mb-4 border border-wip-gold/10">
             <Calendar className="w-3 h-3" />
             <time>{formattedDate}</time>

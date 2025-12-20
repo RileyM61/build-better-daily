@@ -39,6 +39,8 @@ export default async function HomePage() {
                 </p>
               </div>
             ) : (
+              // Posts are sorted: is_read_first posts first (pinned instructional content),
+              // then regular posts by date. This ensures "Read This First" is always visible.
               <div className="grid gap-6">
                 {posts.map((post, index) => (
                   <PostCard
@@ -48,6 +50,7 @@ export default async function HomePage() {
                     excerpt={post.excerpt}
                     createdAt={post.created_at}
                     index={index}
+                    isReadFirst={post.is_read_first || false}
                   />
                 ))}
               </div>
