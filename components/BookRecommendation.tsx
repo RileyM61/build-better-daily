@@ -20,8 +20,8 @@ function getAmazonUrl(book: Book, affiliateTag: string): string {
 export default function BookRecommendation({ books, affiliateTag }: BookRecommendationProps) {
   if (!books || books.length === 0) return null
 
+  // LOAD-BEARING: Strengthened section divider
   return (
-    {/* LOAD-BEARING: Strengthened section divider */}
     <section className="mt-12 pt-8 border-t-2 border-wip-border">
       <div className="flex items-center gap-2 mb-6">
         <svg className="w-6 h-6 text-wip-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,6 @@ export default function BookRecommendation({ books, affiliateTag }: BookRecommen
             href={getAmazonUrl(book, affiliateTag)}
             target="_blank"
             rel="noopener noreferrer"
-            {/* LOAD-BEARING: Book cards with structural weight */}
             className="group block p-4 rounded-lg bg-wip-card border-2 border-wip-border hover:border-wip-gold/50 shadow-[0_2px_6px_-2px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.15)] transition-all duration-300"
           >
             <div className="flex items-start gap-3">
