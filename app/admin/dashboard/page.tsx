@@ -62,18 +62,46 @@ export default function AdminDashboard() {
   }
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return
+    if (!confirm(`Are you sure you want to permanently delete "${title}"? This cannot be undone.`)) return
 
-    const supabase = createBrowserClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('posts') as any)
-      .delete()
-      .eq('id', id)
+    try {
+      // Get the post slug before deletion for revalidation
+      const postToDelete = posts.find(p => p.id === id)
+      const slug = postToDelete?.slug
 
-    if (error) {
-      alert('Failed to delete post')
-    } else {
+      // Use server-side API endpoint with service role key to ensure deletion works
+      const response = await fetch('/api/delete-post', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId: id }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(`Failed to delete post: ${data.error || 'Unknown error'}`)
+        return
+      }
+
+      // Remove from local state
       setPosts(posts.filter(p => p.id !== id))
+
+      // Trigger revalidation to clear Next.js cache
+      try {
+        await fetch('/api/revalidate?path=/', { method: 'POST' })
+        if (slug) {
+          await fetch(`/api/revalidate?path=/post/${slug}`, { method: 'POST' })
+        }
+      } catch (revalidateError) {
+        console.warn('Revalidation failed (this is okay):', revalidateError)
+      }
+
+      alert('Post deleted successfully')
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      alert('Failed to delete post. Please try again.')
     }
   }
 
