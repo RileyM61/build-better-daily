@@ -450,11 +450,10 @@ export async function updateLinkedInPack(
 ): Promise<LinkedInPack | null> {
   const supabase = createServerClient()
 
-  // If status is being set to 'edited' and it's currently 'draft', auto-update
   // If status is being set to 'posted', also set posted_at
-  const updateData: Partial<LinkedInPack> & { posted_at?: string } = { ...updates }
+  const updateData = { ...updates } as Record<string, unknown>
   
-  if (updates.status === 'posted' && !updateData.posted_at) {
+  if (updates.status === 'posted' && !updates.posted_at) {
     updateData.posted_at = new Date().toISOString()
   }
 
