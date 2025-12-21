@@ -59,7 +59,7 @@ export default function SocialAdminPage() {
 
         return {
           ...post,
-          linkedinPack: packData as LinkedInPack | undefined,
+          linkedinPack: packData ? (packData as LinkedInPack) : undefined,
         } as PostWithPack
       })
     )
