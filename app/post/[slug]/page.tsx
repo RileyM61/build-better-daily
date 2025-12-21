@@ -127,7 +127,7 @@ export default async function PostPage({ params }: PostPageProps) {
             />
 
             {/* Email Content for Subscribers */}
-            <EmailContent postId={post.id} postSlug={post.slug} />
+            <EmailContent postId={post.id} />
 
             {/* LOAD-BEARING: Clear structural separation */}
             <div className="mt-16 pt-12 border-t-2 border-wip-border">

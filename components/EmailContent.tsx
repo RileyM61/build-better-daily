@@ -5,7 +5,6 @@ import type { LeadershipTool } from '@/lib/supabase'
 
 interface EmailContentProps {
   postId: string
-  postSlug: string
 }
 
 interface EmailData {
@@ -18,7 +17,7 @@ interface EmailData {
   article_url: string
 }
 
-export default function EmailContent({ postId, postSlug }: EmailContentProps) {
+export default function EmailContent({ postId }: EmailContentProps) {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -45,7 +44,7 @@ export default function EmailContent({ postId, postSlug }: EmailContentProps) {
       }
 
       setEmailData(data.email)
-    } catch (err) {
+    } catch {
       setError('Failed to load email content. Please try again.')
       setEmailData(null)
     } finally {
