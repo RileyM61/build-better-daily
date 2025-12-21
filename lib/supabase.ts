@@ -452,7 +452,7 @@ export async function updateLinkedInPack(
 
   // If status is being set to 'edited' and it's currently 'draft', auto-update
   // If status is being set to 'posted', also set posted_at
-  const updateData: any = { ...updates }
+  const updateData: Partial<LinkedInPack> & { posted_at?: string } = { ...updates }
   
   if (updates.status === 'posted' && !updateData.posted_at) {
     updateData.posted_at = new Date().toISOString()
