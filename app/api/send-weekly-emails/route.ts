@@ -147,7 +147,13 @@ export async function POST(request: NextRequest) {
     let failureCount = 0
     const failures: Array<{ email: string; error: string }> = []
 
-    for (const subscriber of subscribers) {
+    // Resend rate limit: 2 requests per second
+    // Use 700ms delay to stay safely under the limit (allows ~1.4 req/sec)
+    const RATE_LIMIT_DELAY_MS = 700
+
+    for (let i = 0; i < subscribers.length; i++) {
+      const subscriber = subscribers[i]
+      
       const result = await sendWeeklyEmailToSubscriber(
         subscriber.email,
         weeklyEmail,
@@ -157,16 +163,21 @@ export async function POST(request: NextRequest) {
 
       if (result.success) {
         successCount++
+        console.log(`✓ [${i + 1}/${subscribers.length}] Sent to ${subscriber.email}`)
       } else {
         failureCount++
+        const errorMsg = result.error || 'Unknown error'
         failures.push({
           email: subscriber.email,
-          error: result.error || 'Unknown error'
+          error: errorMsg
         })
+        console.log(`✗ [${i + 1}/${subscribers.length}] Failed: ${subscriber.email} - ${errorMsg}`)
       }
 
-      // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Rate limiting: wait between sends (except after the last one)
+      if (i < subscribers.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY_MS))
+      }
     }
 
     // Update sent status
