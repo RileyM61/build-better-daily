@@ -409,6 +409,8 @@ If you cannot satisfy all editorial constraints, return: {"error": "explanation 
 
   try {
     let jsonString = textContent.text.trim()
+    
+    // Remove markdown code blocks if present
     if (jsonString.startsWith('```json')) {
       jsonString = jsonString.slice(7)
     } else if (jsonString.startsWith('```')) {
@@ -418,8 +420,21 @@ If you cannot satisfy all editorial constraints, return: {"error": "explanation 
       jsonString = jsonString.slice(0, -3)
     }
     jsonString = jsonString.trim()
+    
+    // Try to extract JSON object if there's extra text
+    const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      jsonString = jsonMatch[0]
+    }
 
-    const parsed = JSON.parse(jsonString)
+    let parsed
+    try {
+      parsed = JSON.parse(jsonString)
+    } catch (jsonError) {
+      // Log first 500 chars of response for debugging
+      console.error('JSON parse failed. Response preview:', jsonString.substring(0, 500))
+      throw new Error(`JSON parse error: ${jsonError instanceof Error ? jsonError.message : 'Unknown'}. Check server logs for response preview.`)
+    }
     
     // Check for explicit failure
     if (parsed.error) {
@@ -462,7 +477,7 @@ If you cannot satisfy all editorial constraints, return: {"error": "explanation 
     const antiPatterns = [
       { pattern: /\d+\s+(tips|ways|steps|secrets|hacks)/i, name: 'listicle format' },
       { pattern: /in today's (competitive|fast-paced|modern)/i, name: 'throat-clearing opener' },
-      { pattern: /(you've got this|crush it|let's go|amazing)/i, name: 'motivational language' },
+      { pattern: /(you've got this|crush it|let's go)/i, name: 'motivational language' },
       { pattern: /(hustle|grind|outwork|10x)/i, name: 'hustle culture framing' },
       { pattern: /download our|free guide|sign up now/i, name: 'marketing CTA' },
     ]
@@ -786,6 +801,8 @@ Return ONLY the JSON object, no other text.`
 
   try {
     let jsonString = textContent.text.trim()
+    
+    // Remove markdown code blocks if present
     if (jsonString.startsWith('```json')) {
       jsonString = jsonString.slice(7)
     } else if (jsonString.startsWith('```')) {
@@ -795,8 +812,20 @@ Return ONLY the JSON object, no other text.`
       jsonString = jsonString.slice(0, -3)
     }
     jsonString = jsonString.trim()
+    
+    // Try to extract JSON object if there's extra text
+    const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      jsonString = jsonMatch[0]
+    }
 
-    const parsed = JSON.parse(jsonString)
+    let parsed
+    try {
+      parsed = JSON.parse(jsonString)
+    } catch (jsonError) {
+      console.error('LinkedIn Pack JSON parse failed. Response preview:', jsonString.substring(0, 500))
+      throw new Error(`JSON parse error: ${jsonError instanceof Error ? jsonError.message : 'Unknown'}. Check server logs.`)
+    }
     
     // Check for explicit failure
     if (parsed.error) {
@@ -838,14 +867,15 @@ Return ONLY the JSON object, no other text.`
       }
     }
     
-    // Validate first person voice (should contain "I" statements)
-    if (!/^i['\s]|^i've|^i see|^i learned|^i noticed/i.test(pack.primaryPost.trim())) {
-      throw new Error('Primary post must start with first person voice ("I", "I\'ve", "I see", etc.)')
+    // Validate first person voice (should contain "I" statements in opening paragraph)
+    const firstParagraph = pack.primaryPost.trim().split('\n\n')[0] || pack.primaryPost
+    if (!/\bi['\s]|\bi've|\bi see|\bi learned|\bi noticed|\bi've been|\bi was|\bi had/i.test(firstParagraph)) {
+      throw new Error('Primary post must use first person voice ("I", "I\'ve", etc.) in the opening')
     }
     
-    // Validate ends with question
+    // Validate at least one version ends with question
     if (!pack.primaryPost.trim().endsWith('?') && !pack.shortVersion.trim().endsWith('?')) {
-      throw new Error('Both primary post and short version must end with a question')
+      throw new Error('At least one post version must end with a question')
     }
     
     return pack
