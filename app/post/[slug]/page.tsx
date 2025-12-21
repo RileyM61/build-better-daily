@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BookRecommendation from '@/components/BookRecommendation'
 import SubscriptionInvite from '@/components/SubscriptionInvite'
+import EmailContent from '@/components/EmailContent'
 import { getPostBySlug, getPosts } from '@/lib/supabase'
 
 export const revalidate = 60
@@ -124,6 +125,9 @@ export default async function PostPage({ params }: PostPageProps) {
               books={post.books}
               affiliateTag={affiliateTag}
             />
+
+            {/* Email Content for Subscribers */}
+            <EmailContent postId={post.id} postSlug={post.slug} />
 
             {/* LOAD-BEARING: Clear structural separation */}
             <div className="mt-16 pt-12 border-t-2 border-wip-border">
