@@ -83,6 +83,24 @@ export interface Subscriber {
   created_at: string
 }
 
+/**
+ * LinkedIn Pack - Structured social content for LinkedIn
+ * Generated alongside articles, stored for review and manual posting.
+ */
+export interface LinkedInPack {
+  id: string
+  post_id: string
+  primary_post: string
+  short_version: string
+  comment_starters: string[]
+  reply_angles: string[]
+  article_link?: string | null
+  status: 'draft' | 'edited' | 'posted'
+  created_at: string
+  updated_at: string
+  posted_at?: string | null
+}
+
 // Check if Supabase is configured
 export function isSupabaseConfigured(): boolean {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -352,5 +370,106 @@ export async function updateWeeklyEmailSentStatus(
     console.error('Error updating email sent status:', error)
     throw new Error(`Failed to update email status: ${error.message}`)
   }
+}
+
+// ============================================================================
+// LINKEDIN PACK HELPERS
+// ============================================================================
+
+/**
+ * Create a LinkedIn Pack for a post
+ */
+export async function createLinkedInPack(
+  pack: Omit<LinkedInPack, 'id' | 'created_at' | 'updated_at'>
+): Promise<LinkedInPack | null> {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from('linkedin_packs')
+    .insert([pack])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating LinkedIn Pack:', error)
+    throw new Error(`Database error: ${error.message} (Code: ${error.code})`)
+  }
+
+  return data as LinkedInPack
+}
+
+/**
+ * Get LinkedIn Pack by post ID
+ */
+export async function getLinkedInPackByPostId(postId: string): Promise<LinkedInPack | null> {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from('linkedin_packs')
+    .select('*')
+    .eq('post_id', postId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No rows returned
+      return null
+    }
+    console.error('Error fetching LinkedIn Pack:', error)
+    return null
+  }
+
+  return data as LinkedInPack
+}
+
+/**
+ * Get all LinkedIn Packs (for admin list view)
+ */
+export async function getAllLinkedInPacks(): Promise<LinkedInPack[]> {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from('linkedin_packs')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching LinkedIn Packs:', error)
+    return []
+  }
+
+  return data as LinkedInPack[]
+}
+
+/**
+ * Update LinkedIn Pack (for editing and status changes)
+ */
+export async function updateLinkedInPack(
+  packId: string,
+  updates: Partial<Omit<LinkedInPack, 'id' | 'post_id' | 'created_at' | 'updated_at'>>
+): Promise<LinkedInPack | null> {
+  const supabase = createServerClient()
+
+  // If status is being set to 'edited' and it's currently 'draft', auto-update
+  // If status is being set to 'posted', also set posted_at
+  const updateData: any = { ...updates }
+  
+  if (updates.status === 'posted' && !updateData.posted_at) {
+    updateData.posted_at = new Date().toISOString()
+  }
+
+  const { data, error } = await supabase
+    .from('linkedin_packs')
+    .update(updateData)
+    .eq('id', packId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating LinkedIn Pack:', error)
+    throw new Error(`Database error: ${error.message} (Code: ${error.code})`)
+  }
+
+  return data as LinkedInPack
 }
 

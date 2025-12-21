@@ -12,8 +12,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { generateBlogPost, generateWeeklyEmail } from '@/lib/claude'
-import { createPost, createWeeklyEmail, getRecentPostTitles } from '@/lib/supabase'
+import { generateBlogPost, generateWeeklyEmail, generateLinkedInPack } from '@/lib/claude'
+import { createPost, createWeeklyEmail, createLinkedInPack, getRecentPostTitles } from '@/lib/supabase'
 
 // Verify the cron secret to prevent unauthorized access
 function verifyCronSecret(request: NextRequest): boolean {
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     console.log(`✓ Post saved with ID: ${savedPost.id}`)
 
     // STEP 3: Generate and save email companion
-    console.log('\n[3/3] Generating email companion...')
+    console.log('\n[3/4] Generating email companion...')
     const generatedEmail = await generateWeeklyEmail(generatedPost)
     
     console.log(`✓ Email generated: "${generatedEmail.subject}"`)
@@ -104,6 +104,33 @@ export async function GET(request: NextRequest) {
       console.log(`✓ Email saved with ID: ${savedEmail.id}`)
     }
 
+    // STEP 4: Generate and save LinkedIn Pack
+    console.log('\n[4/4] Generating LinkedIn Pack...')
+    const articleUrl = process.env.NEXT_PUBLIC_SITE_URL 
+      ? `${process.env.NEXT_PUBLIC_SITE_URL}/post/${generatedPost.slug}`
+      : undefined
+    
+    const generatedPack = await generateLinkedInPack(generatedPost, articleUrl)
+    
+    console.log(`✓ LinkedIn Pack generated`)
+
+    // Save LinkedIn Pack to database
+    const savedPack = await createLinkedInPack({
+      post_id: savedPost.id,
+      primary_post: generatedPack.primaryPost,
+      short_version: generatedPack.shortVersion,
+      comment_starters: generatedPack.commentStarters,
+      reply_angles: generatedPack.replyAngles,
+      article_link: generatedPack.articleLink,
+      status: 'draft',
+    })
+
+    if (!savedPack) {
+      console.warn('Warning: LinkedIn Pack was not saved to database')
+    } else {
+      console.log(`✓ LinkedIn Pack saved with ID: ${savedPack.id}`)
+    }
+
     console.log('\n' + '='.repeat(60))
     console.log('GENERATION COMPLETE')
     console.log('='.repeat(60))
@@ -120,6 +147,10 @@ export async function GET(request: NextRequest) {
       email: savedEmail ? {
         id: savedEmail.id,
         subject: savedEmail.subject,
+      } : null,
+      linkedinPack: savedPack ? {
+        id: savedPack.id,
+        status: savedPack.status,
       } : null,
     })
   } catch (error) {

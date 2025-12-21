@@ -176,6 +176,13 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-4">
             <Link
+              href="/admin/social"
+              className="text-sm text-wip-muted hover:text-black transition-colors"
+            >
+              Social
+            </Link>
+            <span className="text-wip-border">|</span>
+            <Link
               href="/admin/subscribers"
               className="text-sm text-wip-muted hover:text-black transition-colors"
             >

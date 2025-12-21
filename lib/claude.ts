@@ -106,6 +106,28 @@ export interface GeneratedEmail {
   executionNudge: string      // One execution nudge
 }
 
+/**
+ * LinkedIn Pack - Structured social content for LinkedIn
+ * Generated alongside articles, but designed for conversation-starting posts.
+ * 
+ * SOCIAL CONTENT PHILOSOPHY (Non-Negotiable):
+ * 
+ * 1. The founder's thinking stays human - AI assists with translation, not authorship
+ * 2. Nothing posts automatically - outputs are drafts for review
+ * 3. System reduces friction, not automates voice
+ * 4. Founder judgment remains the final step
+ * 
+ * NON-GOALS: Auto-posting, engagement bots, scraping, growth hacking
+ * This system supports thoughtful presence, not volume.
+ */
+export interface LinkedInPack {
+  primaryPost: string      // 5-8 short paragraphs, scroll-stopping opener, ends with question
+  shortVersion: string     // 3-4 paragraphs, tighter framing
+  commentStarters: string[] // 3 suggested first comments (internal prompts)
+  replyAngles: string[]    // 3 engagement reply angles (internal prompts)
+  articleLink: string      // Optional quiet CTA: "I wrote more about this here → [link]"
+}
+
 // =============================================================================
 // EDITORIAL PLAYBOOK (SYSTEM PROMPT)
 // =============================================================================
@@ -605,5 +627,230 @@ Return ONLY the JSON object.`
   } catch (parseError) {
     console.error('Failed to parse email response:', textContent.text)
     throw new Error(`Failed to parse generated email: ${parseError}`)
+  }
+}
+
+// =============================================================================
+// LINKEDIN PACK GENERATION
+// =============================================================================
+
+/**
+ * SOCIAL CONTENT PHILOSOPHY (Non-Negotiable):
+ * 
+ * 1. The founder's thinking stays human - AI assists with translation, not authorship
+ *    - Claude translates the article's insight into conversation-starting language
+ *    - The founder's voice, judgment, and intent remain the source of truth
+ *    - AI outputs are drafts, not final content
+ * 
+ * 2. Nothing posts automatically - outputs are drafts for review
+ *    - Every LinkedIn Pack is generated in 'draft' status
+ *    - Founder reviews, edits, and approves before any posting
+ *    - System reduces friction, not automates voice
+ * 
+ * 3. System reduces friction, not automates voice
+ *    - The goal is to make high-quality drafts available quickly
+ *    - Founder judgment remains the final step
+ *    - This is internal tooling, not a growth hacking system
+ * 
+ * 4. Founder judgment remains the final step
+ *    - All content goes through human review
+ *    - Status tracking (draft → edited → posted) ensures intentional posting
+ *    - No engagement bots, no auto-posting, no scraping
+ * 
+ * NON-GOALS:
+ * - Auto-posting to LinkedIn
+ * - Engagement bots or automated replies
+ * - Scraping LinkedIn for metrics
+ * - Growth hacking or volume optimization
+ * 
+ * This system supports thoughtful presence, not volume.
+ */
+
+/**
+ * Generate LinkedIn Pack from a weekly article
+ * 
+ * This function translates the article's core insight into conversation-starting
+ * LinkedIn content. It preserves the article's tension and translates it into
+ * founder voice - first person, calm, direct, experienced peer.
+ * 
+ * CONSTRAINTS:
+ * - Base ONLY on the generated article (no external knowledge)
+ * - Preserve the article's core tension
+ * - Avoid summarizing - translate insight into conversation language
+ * - First person voice ("I've learned...", "I see this all the time...")
+ * - No hashtags in body (max 2 at end, optional)
+ * - Ends with open-ended question
+ * - No emojis, threads, marketing CTAs, hustle language
+ * 
+ * If constraints cannot be met, Claude should fail loudly.
+ */
+export async function generateLinkedInPack(post: GeneratedPost, articleUrl?: string): Promise<LinkedInPack> {
+  const articleLink = articleUrl || `https://buildbetterdaily.com/post/${post.slug}`
+  
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-5-20250929',
+    max_tokens: 3000,
+    messages: [
+      {
+        role: 'user',
+        content: `Generate a LinkedIn Pack for this weekly leadership article.
+
+ARTICLE TITLE: "${post.title}"
+ARTICLE PILLAR: ${post.pillar}
+ARTICLE ARCHETYPE: ${post.archetype}
+ARTICLE EXCERPT: "${post.excerpt}"
+
+ARTICLE CONTENT (first 2000 chars for context):
+${post.content.substring(0, 2000)}
+
+LEADERSHIP TOOL:
+- Question: ${post.leadershipTool.question}
+- Prompt: ${post.leadershipTool.prompt}
+- Action: ${post.leadershipTool.action}
+
+══════════════════════════════════════════════════════════════════════════════
+LINKEDIN PACK REQUIREMENTS (NON-NEGOTIABLE)
+══════════════════════════════════════════════════════════════════════════════
+
+1. PRIMARY LINKEDIN POST (5-8 short paragraphs):
+   - First line MUST stop the scroll (hook that makes them pause)
+   - Written in first person ("I've learned...", "I see this all the time...")
+   - Calm, direct, experienced peer tone (not guru, not motivational)
+   - NO hashtags in the body text
+   - Ends with a single, open-ended question
+   - Preserve the article's core tension - don't summarize, translate the insight
+   - Short paragraphs that punch (one idea per paragraph)
+
+2. ALTERNATE SHORT VERSION (3-4 paragraphs):
+   - Same idea, tighter framing
+   - Designed for faster consumption
+   - Still first person, still ends with question
+
+3. COMMENT SEEDING PROMPTS (3 suggestions):
+   - Internal use only - prompts for the founder to post as first comment
+   - Should deepen the conversation or add nuance
+   - NOT scripts - these are prompts/angles
+
+4. REPLY ANGLES (3 suggestions):
+   - Example reply angles for when people engage
+   - Helpful for maintaining thoughtful conversation
+   - NOT scripts - these are prompts/angles
+
+5. ARTICLE REFERENCE (optional quiet CTA):
+   - One optional closing line: "I wrote more about this here → [link]"
+   - Must feel optional, not promotional
+   - Use the provided article link: ${articleLink}
+
+══════════════════════════════════════════════════════════════════════════════
+EXPLICITLY FORBIDDEN
+══════════════════════════════════════════════════════════════════════════════
+
+❌ Threads (multiple posts)
+❌ Emojis in the post body
+❌ Marketing CTAs ("Download our guide!", "Sign up now!")
+❌ Hashtags in the body (max 2 optional at the very end)
+❌ Hustle language ("Crush it!", "10x your business!")
+❌ Generic advice ("Communicate clearly with your team")
+❌ Summarizing the article (translate, don't recap)
+❌ Third person voice (must be first person: "I", not "you should")
+
+IF YOU CANNOT SATISFY ALL CONSTRAINTS, RETURN: {"error": "explanation of which constraint cannot be met"}
+
+Respond with JSON in this EXACT format:
+{
+  "primaryPost": "5-8 paragraphs, first person, scroll-stopping opener, ends with question, no hashtags in body",
+  "shortVersion": "3-4 paragraphs, tighter framing, same voice",
+  "commentStarters": [
+    "First comment prompt/angle",
+    "Second comment prompt/angle",
+    "Third comment prompt/angle"
+  ],
+  "replyAngles": [
+    "First reply angle",
+    "Second reply angle",
+    "Third reply angle"
+  ],
+  "articleLink": "I wrote more about this here → ${articleLink}"
+}
+
+Return ONLY the JSON object, no other text.`
+      }
+    ],
+    system: SYSTEM_PROMPT,
+  })
+
+  const textContent = response.content.find(block => block.type === 'text')
+  if (!textContent || textContent.type !== 'text') {
+    throw new Error('No text content in Claude response for LinkedIn Pack')
+  }
+
+  try {
+    let jsonString = textContent.text.trim()
+    if (jsonString.startsWith('```json')) {
+      jsonString = jsonString.slice(7)
+    } else if (jsonString.startsWith('```')) {
+      jsonString = jsonString.slice(3)
+    }
+    if (jsonString.endsWith('```')) {
+      jsonString = jsonString.slice(0, -3)
+    }
+    jsonString = jsonString.trim()
+
+    const parsed = JSON.parse(jsonString)
+    
+    // Check for explicit failure
+    if (parsed.error) {
+      throw new Error(`Claude refused to generate LinkedIn Pack: ${parsed.error}`)
+    }
+
+    const pack = parsed as LinkedInPack
+    
+    // Validate required fields
+    if (!pack.primaryPost || !pack.shortVersion || !pack.commentStarters || !pack.replyAngles) {
+      throw new Error('Missing required fields in generated LinkedIn Pack')
+    }
+    
+    // Validate arrays
+    if (!Array.isArray(pack.commentStarters) || pack.commentStarters.length !== 3) {
+      throw new Error('Expected exactly 3 comment starters')
+    }
+    
+    if (!Array.isArray(pack.replyAngles) || pack.replyAngles.length !== 3) {
+      throw new Error('Expected exactly 3 reply angles')
+    }
+    
+    // Anti-pattern validation
+    const antiPatterns = [
+      { pattern: /🧠|💡|🚀|🔥|✨|💪|🎯/i, name: 'emojis in post' },
+      { pattern: /(download our|free guide|sign up now|get started|book a call)/i, name: 'marketing CTA' },
+      { pattern: /(crush it|hustle|grind|10x|outwork)/i, name: 'hustle language' },
+      { pattern: /^#| #/m, name: 'hashtags in body (should be at end only)' },
+      { pattern: /thread|🧵/i, name: 'thread format' },
+      { pattern: /^you should|^you need to|^you must/i, name: 'third person voice (should be first person)' },
+    ]
+    
+    const primaryPostText = pack.primaryPost.toLowerCase()
+    const shortVersionText = pack.shortVersion.toLowerCase()
+    
+    for (const { pattern, name } of antiPatterns) {
+      if (pattern.test(primaryPostText) || pattern.test(shortVersionText)) {
+        throw new AntiPatternError(`Anti-pattern detected in LinkedIn Pack: ${name}. Pack rejected.`)
+      }
+    }
+    
+    // Validate first person voice (should contain "I" statements)
+    if (!/^i['\s]|^i've|^i see|^i learned|^i noticed/i.test(pack.primaryPost.trim())) {
+      throw new Error('Primary post must start with first person voice ("I", "I\'ve", "I see", etc.)')
+    }
+    
+    // Validate ends with question
+    if (!pack.primaryPost.trim().endsWith('?') && !pack.shortVersion.trim().endsWith('?')) {
+      throw new Error('Both primary post and short version must end with a question')
+    }
+    
+    return pack
+  } catch (parseError) {
+    console.error('Failed to parse LinkedIn Pack response:', textContent.text)
+    throw new Error(`Failed to parse generated LinkedIn Pack: ${parseError}`)
   }
 }
