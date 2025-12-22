@@ -366,6 +366,26 @@ export function runRegexValidation(draft: StructuredDraft): Violation[] {
     }
   }
   
+  // Vague prompt patterns
+  const vaguePromptPatterns = [
+    /^discuss how/,
+    /^talk about/,
+    /^think about/,
+    /^consider/,
+  ]
+  
+  for (const pattern of vaguePromptPatterns) {
+    if (pattern.test(toolPrompt)) {
+      violations.push({
+        type: 'LEADERSHIP_TOOL_WEAK',
+        description: 'Leadership prompt is too vague to force clarity',
+        evidence: draft.leadershipTool.prompt,
+        remediation: 'Make the prompt expose a specific issue or disagreement'
+      })
+      break
+    }
+  }
+  
   // Vague action patterns
   if (!toolAction.includes('by ') && !toolAction.includes('within ') && !toolAction.includes('friday') && !toolAction.includes('monday')) {
     // No deadline indicator
