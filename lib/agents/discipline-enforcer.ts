@@ -26,6 +26,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import type { StructuredDraft, EnforcerVerdict, Violation, ViolationType } from './types'
+import { parseJsonRobust } from './types'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -247,7 +248,7 @@ Return ONLY the JSON verdict object, no other text.`
       jsonString = jsonMatch[0]
     }
 
-    const verdict = JSON.parse(jsonString) as EnforcerVerdict
+    const verdict = parseJsonRobust<EnforcerVerdict>(jsonString, 'DisciplineEnforcer')
     
     // Validate verdict structure
     if (!verdict.status || !['PASS', 'FAIL'].includes(verdict.status)) {

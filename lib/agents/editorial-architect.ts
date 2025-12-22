@@ -26,6 +26,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { CONTENT_PILLARS, ARTICLE_ARCHETYPES } from '../claude'
 import type { RawInsight, StructuredDraft } from './types'
+import { parseJsonRobust } from './types'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -334,7 +335,7 @@ Return ONLY the JSON object, no other text.`
       jsonString = jsonMatch[0]
     }
 
-    const draft = JSON.parse(jsonString) as StructuredDraft
+    const draft = parseJsonRobust<StructuredDraft>(jsonString, 'EditorialArchitect')
     
     // Validate required fields
     if (!draft.title || !draft.slug || !draft.content || !draft.excerpt) {

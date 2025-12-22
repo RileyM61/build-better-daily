@@ -22,6 +22,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import type { RawInsight } from './types'
+import { parseJsonRobust } from './types'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -158,7 +159,7 @@ Return ONLY the JSON object.`
       jsonString = jsonMatch[0]
     }
 
-    const parsed = JSON.parse(jsonString) as RawInsight
+    const parsed = parseJsonRobust<RawInsight>(jsonString, 'InsightGenerator')
     
     // Validate we got an insight
     if (!parsed.insight || parsed.insight.length < 100) {

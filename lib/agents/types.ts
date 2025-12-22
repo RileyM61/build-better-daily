@@ -236,3 +236,49 @@ export interface PipelineConfig {
   existingTitles?: string[]
 }
 
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Robustly parse JSON from LLM responses
+ * 
+ * LLMs sometimes produce JSON with unescaped control characters inside string
+ * values. This function attempts to parse JSON normally first, then falls back
+ * to sanitizing control characters if needed.
+ * 
+ * @param jsonString - The JSON string to parse
+ * @param agentName - Name of the calling agent for logging
+ * @returns Parsed JSON object
+ * @throws Error if parsing fails even after sanitization
+ */
+export function parseJsonRobust<T>(jsonString: string, agentName: string): T {
+  // First attempt: try normal parsing
+  try {
+    return JSON.parse(jsonString)
+  } catch (firstError) {
+    console.log(`[${agentName}] First parse failed, attempting to sanitize control characters...`)
+    
+    // Sanitize control characters inside JSON string values only
+    // The regex matches double-quoted strings and escapes control chars within them
+    const sanitized = jsonString.replace(
+      /"(?:[^"\\]|\\.)*"/g,
+      (match) => match
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\t/g, '\\t')
+        .replace(/[\x00-\x1F\x7F]/g, '') // Remove other control chars
+    )
+    
+    try {
+      const result = JSON.parse(sanitized)
+      console.log(`[${agentName}] Sanitization successful`)
+      return result
+    } catch (secondError) {
+      // If still failing, log detail and rethrow original error
+      console.error(`[${agentName}] Sanitization failed. Original error:`, firstError)
+      throw firstError
+    }
+  }
+}
+

@@ -30,6 +30,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import type { StructuredDraft, PolishedArticle } from './types'
+import { parseJsonRobust } from './types'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -161,31 +162,22 @@ YOUR TASK
 3. Preserve meaning exactly
 4. Track what you changed
 
-Return a JSON object in this EXACT format:
-{
-  "sourceInsight": "${draft.sourceInsight}",
-  "pillar": "${draft.pillar}",
-  "archetype": "${draft.archetype}",
-  "title": "The title (unchanged unless there's a clear typo)",
-  "slug": "${draft.slug}",
-  "excerpt": "The excerpt (tightened if needed)",
-  "content": "The full polished article content in Markdown",
-  "leadershipTool": {
-    "question": "The question (unchanged or only word choice improved)",
-    "prompt": "The prompt (unchanged or only word choice improved)",
-    "action": "The action (unchanged or only word choice improved)"
-  },
-  "books": ${JSON.stringify(draft.books)},
-  "pipelineComplete": true,
-  "polishChanges": [
-    "Brief description of change 1",
-    "Brief description of change 2"
-  ]
-}
+Return a JSON object with these fields:
+- sourceInsight: Copy the original source insight exactly (preserve it unchanged)
+- pillar: "${draft.pillar}"
+- archetype: "${draft.archetype}"
+- title: The title (unchanged unless there's a clear typo)
+- slug: "${draft.slug}"
+- excerpt: The excerpt (tightened if needed)
+- content: The full polished article content in Markdown
+- leadershipTool: Object with question, prompt, action (unchanged or only word choice improved)
+- books: The same book array provided above
+- pipelineComplete: true
+- polishChanges: Array of brief descriptions of changes made
 
-If no changes are needed, return the article as-is with "polishChanges": ["No changes needed - article is already tight"]
+If no changes are needed, return the article as-is with polishChanges: ["No changes needed - article is already tight"]
 
-Return ONLY the JSON object, no other text.`
+Return ONLY a valid JSON object, no other text. Ensure all string values are properly escaped for JSON (escape newlines as \\n, quotes as \\", etc).`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',
@@ -225,7 +217,7 @@ Return ONLY the JSON object, no other text.`
       jsonString = jsonMatch[0]
     }
 
-    const polished = JSON.parse(jsonString) as PolishedArticle
+    const polished = parseJsonRobust<PolishedArticle>(jsonString, 'FinalPolisher')
     
     // Validate required fields
     if (!polished.title || !polished.slug || !polished.content || !polished.excerpt) {
