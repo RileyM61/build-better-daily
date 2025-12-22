@@ -15,13 +15,23 @@
  *    - Every article MUST include a usable Leadership Tool Section
  *    - If it can't drive a conversation, it shouldn't be published
  * 
- * 3. WHY CLAUDE IS INTENTIONALLY CONSTRAINED:
+ * 3. WHY MULTI-AGENT PIPELINE (NEW):
+ *    - Single-prompt generation conflates creative thinking with editorial enforcement
+ *    - Multi-agent separation reduces failure rates by isolating concerns:
+ *      → Insight Generator: Pure creative divergence (no formatting overhead)
+ *      → Editorial Architect: Apply structure, pillars, archetypes
+ *      → Discipline Enforcer: Hard pass/fail gate with specific violations
+ *      → Final Polisher: Language refinement (only on PASS)
+ *    - Each agent can be tuned and debugged independently
+ *    - The Discipline Enforcer becomes a real gate, not a hopeful check
+ * 
+ * 4. WHY CLAUDE IS INTENTIONALLY CONSTRAINED:
  *    - Unconstrained AI produces "content slop" — generic, safe, forgettable
  *    - Pillars and archetypes force specificity and editorial voice
  *    - Anti-patterns are guardrails, not suggestions
  *    - Failure is better than weak content — we fail loudly
  * 
- * 4. NON-GOALS (by design):
+ * 5. NON-GOALS (by design):
  *    - No SEO optimization
  *    - No traffic growth tactics
  *    - No engagement metrics
@@ -31,10 +41,27 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import type { Book } from './supabase'
+import { generateArticleWithPipeline } from './agents'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
+
+// =============================================================================
+// PIPELINE CONFIGURATION
+// =============================================================================
+
+/**
+ * Feature flag: Use multi-agent pipeline for article generation
+ * 
+ * When true (default): Uses the new 4-agent pipeline
+ * - Insight Generator → Editorial Architect → Discipline Enforcer → Final Polisher
+ * - Better separation of concerns, stricter validation
+ * 
+ * When false: Uses the legacy single-prompt approach
+ * - Kept for fallback/comparison during transition
+ */
+const USE_MULTI_AGENT_PIPELINE = true
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -538,9 +565,25 @@ async function generateWithRetry(
 }
 
 /**
- * Public function: Generate a blog post with automatic retry on anti-pattern violations
+ * Public function: Generate a blog post
+ * 
+ * Uses multi-agent pipeline by default (controlled by USE_MULTI_AGENT_PIPELINE flag).
+ * Falls back to legacy single-prompt approach if disabled.
+ * 
+ * Multi-Agent Pipeline Advantages:
+ * - Separates creative thinking from editorial enforcement
+ * - Strict Discipline Enforcer catches tone drift and weak leadership tools
+ * - Each agent can be tuned independently
+ * - Higher-confidence publishable articles
  */
 export async function generateBlogPost(existingTitles: string[]): Promise<GeneratedPost> {
+  if (USE_MULTI_AGENT_PIPELINE) {
+    console.log('Using multi-agent pipeline for article generation')
+    return generateArticleWithPipeline(existingTitles)
+  }
+  
+  // Legacy fallback
+  console.log('Using legacy single-prompt generation')
   return generateWithRetry(existingTitles, 3)
 }
 
