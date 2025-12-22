@@ -274,7 +274,7 @@ export function parseJsonRobust<T>(jsonString: string, agentName: string): T {
       const result = JSON.parse(sanitized)
       console.log(`[${agentName}] Sanitization successful`)
       return result
-    } catch (secondError) {
+    } catch {
       // If still failing, log detail and rethrow original error
       console.error(`[${agentName}] Sanitization failed. Original error:`, firstError)
       throw firstError
