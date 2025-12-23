@@ -13,7 +13,9 @@ import type { WeeklyEmail, Post } from './supabase'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// From address - update this to your verified domain
+// From address - MUST use a verified domain in Resend for production emails
+// Set RESEND_FROM_EMAIL in your environment variables to an email on your verified domain
+// Example: 'martin@buildbetterdaily.com' or 'noreply@buildbetterdaily.com'
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 const FROM_NAME = 'Build Better Daily'
 
@@ -30,6 +32,13 @@ export function buildLeadershipEmailHTML(
   if (!leadershipTool) {
     throw new Error('Post must have leadership_tool to send email')
   }
+  
+  // Encode URLs for social sharing
+  const encodedUrl = encodeURIComponent(articleUrl)
+  const encodedTitle = encodeURIComponent(post.title)
+  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
+  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`
+  
   return `
 <!DOCTYPE html>
 <html>
@@ -85,6 +94,13 @@ export function buildLeadershipEmailHTML(
   <!-- Article Link (bottom) -->
   <p style="font-size: 14px; color: #666; margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">
     <a href="${articleUrl}" style="color: #666; text-decoration: none;">Read the full article →</a>
+  </p>
+  
+  <!-- Share Buttons -->
+  <p style="font-size: 14px; color: #666; margin-top: 16px;">
+    Share this insight: 
+    <a href="${linkedinShareUrl}" style="color: #666; text-decoration: none;">LinkedIn</a> | 
+    <a href="${twitterShareUrl}" style="color: #666; text-decoration: none;">X</a>
   </p>
   
   <!-- Signature -->
