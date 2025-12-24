@@ -34,6 +34,7 @@ export default function EditPostPage() {
   const [email, setEmail] = useState<WeeklyEmail | null>(null)
   const [showEmail, setShowEmail] = useState(false)
   const [sendingEmails, setSendingEmails] = useState(false)
+  const [generatingEmail, setGeneratingEmail] = useState(false)
 
   const fetchPost = useCallback(async () => {
     const supabase = createBrowserClient()
@@ -131,6 +132,36 @@ export default function EditPostPage() {
       showToast('Email saved successfully!', 'success')
     }
     setSaving(false)
+  }
+
+  const handleGenerateEmail = async () => {
+    setGeneratingEmail(true)
+
+    try {
+      const response = await fetch('/api/generate-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ post_id: id }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to generate email')
+      }
+
+      showToast(`Email generated successfully: "${data.email.subject}"`, 'success')
+      
+      // Refresh post data to get the new email
+      fetchPost()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      showToast(`Failed to generate email: ${message}`, 'error')
+    } finally {
+      setGeneratingEmail(false)
+    }
   }
 
   const handleSendEmails = async () => {
@@ -253,13 +284,29 @@ export default function EditPostPage() {
             ← Back to Dashboard
           </Link>
           <div className="flex items-center gap-2">
-            {email && (
+            {email ? (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowEmail(!showEmail)}
               >
                 {showEmail ? 'Hide Email' : 'View Email'}
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleGenerateEmail}
+                disabled={generatingEmail}
+              >
+                {generatingEmail ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Generating...
+                  </>
+                ) : (
+                  'Generate Email'
+                )}
               </Button>
             )}
             <Button
