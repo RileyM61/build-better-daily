@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef, ElementType } from 'react'
+import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef, ElementType, ForwardedRef } from 'react'
 import Link from 'next/link'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -36,7 +36,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
             const Component = as || Link
             return (
                 <Component
-                    ref={ref as any}
+                    ref={ref as ForwardedRef<HTMLAnchorElement>}
                     href={href}
                     className={baseClasses}
                     {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}
@@ -47,7 +47,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
         // Default to button
         return (
             <button
-                ref={ref as any}
+                ref={ref as ForwardedRef<HTMLButtonElement>}
                 className={baseClasses}
                 {...props}
             />

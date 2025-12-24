@@ -143,7 +143,7 @@ export default function AdminDashboard() {
           3000
         )
       }
-    } catch (error) {
+    } catch {
       showToast('Failed to update post status', 'error')
     } finally {
       setTogglingId(null)
