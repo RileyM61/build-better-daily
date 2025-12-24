@@ -3,8 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 import { getSession, signOut } from '@/lib/auth'
 import { createBrowserClient } from '@/lib/supabase'
+import { Button } from '@/components/Button'
+import { ToastContainer } from '@/components/Toast'
+import { useToast } from '@/lib/useToast'
 import type { Post } from '@/lib/supabase'
 
 interface PostWithEmail extends Post {
@@ -15,8 +19,11 @@ export default function AdminDashboard() {
   const [posts, setPosts] = useState<PostWithEmail[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
-  const [generateError, setGenerateError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; title: string } | null>(null)
   const router = useRouter()
+  const { toasts, showToast, removeToast } = useToast()
 
   useEffect(() => {
     // Check authentication
@@ -61,8 +68,16 @@ export default function AdminDashboard() {
     router.push('/admin')
   }
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to permanently delete "${title}"? This cannot be undone.`)) return
+  const handleDeleteClick = (id: string, title: string) => {
+    setShowDeleteConfirm({ id, title })
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!showDeleteConfirm) return
+
+    const { id, title } = showDeleteConfirm
+    setDeletingId(id)
+    setShowDeleteConfirm(null)
 
     try {
       // Get the post slug before deletion for revalidation
@@ -81,7 +96,8 @@ export default function AdminDashboard() {
       const data = await response.json()
 
       if (!response.ok) {
-        alert(`Failed to delete post: ${data.error || 'Unknown error'}`)
+        showToast(`Failed to delete post: ${data.error || 'Unknown error'}`, 'error')
+        setDeletingId(null)
         return
       }
 
@@ -98,30 +114,44 @@ export default function AdminDashboard() {
         console.warn('Revalidation failed (this is okay):', revalidateError)
       }
 
-      alert('Post deleted successfully')
+      showToast(`"${title}" deleted successfully`, 'success')
     } catch (error) {
       console.error('Error deleting post:', error)
-      alert('Failed to delete post. Please try again.')
+      showToast('Failed to delete post. Please try again.', 'error')
+    } finally {
+      setDeletingId(null)
     }
   }
 
   const togglePublished = async (id: string, currentStatus: boolean) => {
+    setTogglingId(id)
     const supabase = createBrowserClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.from('posts') as any)
-      .update({ published: !currentStatus })
-      .eq('id', id)
+    
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from('posts') as any)
+        .update({ published: !currentStatus })
+        .eq('id', id)
 
-    if (error) {
-      alert('Failed to update post')
-    } else {
-      setPosts(posts.map(p => p.id === id ? { ...p, published: !currentStatus } : p))
+      if (error) {
+        showToast('Failed to update post status', 'error')
+      } else {
+        setPosts(posts.map(p => p.id === id ? { ...p, published: !currentStatus } : p))
+        showToast(
+          `Post ${!currentStatus ? 'published' : 'unpublished'} successfully`,
+          'success',
+          3000
+        )
+      }
+    } catch (error) {
+      showToast('Failed to update post status', 'error')
+    } finally {
+      setTogglingId(null)
     }
   }
 
   const handleGeneratePost = async () => {
     setGenerating(true)
-    setGenerateError(null)
     
     try {
       // Prompt for the cron secret
@@ -139,12 +169,11 @@ export default function AdminDashboard() {
       }
       
       // Success - refresh posts list
-      alert(`Successfully generated: "${data.post?.title || 'New Post'}"`)
+      showToast(`Successfully generated: "${data.post?.title || 'New Post'}"`, 'success')
       fetchPosts()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'
-      setGenerateError(message)
-      alert(`Generation failed: ${message}`)
+      showToast(`Generation failed: ${message}`, 'error')
     } finally {
       setGenerating(false)
     }
@@ -153,13 +182,17 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-wip-dark flex items-center justify-center">
-        <div className="text-wip-muted">Loading...</div>
+        <div className="flex items-center gap-3 text-wip-muted">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading posts...</span>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-wip-dark">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       {/* Header */}
       <header className="border-b border-wip-border bg-wip-card">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -201,32 +234,36 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-black">Blog Posts</h1>
-            {generateError && (
-              <p className="text-red-400 text-sm mt-1">{generateError}</p>
-            )}
-          </div>
+        <div className="flex items-center justify-between mb-12">
+          <h1 className="text-2xl font-bold text-black">Blog Posts</h1>
           <div className="flex gap-3">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleGeneratePost}
               disabled={generating}
-              className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {generating ? 'Generating...' : 'Generate New Post'}
-            </button>
-            <Link
+              {generating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Generating...
+                </>
+              ) : (
+                'Generate Post'
+              )}
+            </Button>
+            <Button
+              variant="primary"
+              as={Link}
               href="/admin/posts/new"
-              className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm"
             >
               + New Post
-            </Link>
+            </Button>
           </div>
         </div>
 
         {posts.length === 0 ? (
-          <div className="text-center py-12 bg-wip-card border border-wip-border rounded-xl">
+          <div className="text-center py-16 bg-wip-card border border-wip-border rounded-xl">
             <p className="text-wip-muted">No posts yet. Generate or create your first post!</p>
           </div>
         ) : (
@@ -234,16 +271,16 @@ export default function AdminDashboard() {
             <table className="w-full">
               <thead className="bg-wip-dark/50">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-wip-muted">Title</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-wip-muted w-32">Status</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-wip-muted w-40">Date</th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-wip-muted w-32">Actions</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-wip-muted">Title</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-wip-muted w-32">Status</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-wip-muted w-40">Date</th>
+                  <th className="text-right px-6 py-4 text-sm font-medium text-wip-muted w-32">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-wip-border">
                 {posts.map((post) => (
                   <tr key={post.id} className="hover:bg-wip-dark/30 transition-colors">
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/admin/posts/${post.id}`}
@@ -259,26 +296,34 @@ export default function AdminDashboard() {
                       </div>
                       <p className="text-sm text-wip-muted mt-1 line-clamp-1">{post.excerpt}</p>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-5">
                       <button
                         onClick={() => togglePublished(post.id, post.published)}
-                        className={`px-2 py-1 rounded text-xs font-medium ${
+                        disabled={togglingId === post.id}
+                        className={`px-3 py-1.5 rounded text-xs font-medium transition-colors disabled:opacity-50 ${
                           post.published
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-yellow-500/20 text-yellow-400'
+                            ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                            : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                         }`}
                       >
-                        {post.published ? 'Published' : 'Draft'}
+                        {togglingId === post.id ? (
+                          <span className="flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Updating...
+                          </span>
+                        ) : (
+                          post.published ? 'Published' : 'Draft'
+                        )}
                       </button>
                     </td>
-                    <td className="px-4 py-4 text-sm text-wip-muted">
+                    <td className="px-6 py-5 text-sm text-wip-muted">
                       {new Date(post.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
                       })}
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-6 py-5 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/post/${post.slug}`}
@@ -301,13 +346,18 @@ export default function AdminDashboard() {
                           </svg>
                         </Link>
                         <button
-                          onClick={() => handleDelete(post.id, post.title)}
-                          className="p-2 text-wip-muted hover:text-red-400 transition-colors"
+                          onClick={() => handleDeleteClick(post.id, post.title)}
+                          disabled={deletingId === post.id}
+                          className="p-2 text-wip-muted hover:text-red-400 transition-colors disabled:opacity-50"
                           title="Delete"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          {deletingId === post.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </td>
@@ -315,6 +365,33 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-wip-card border-2 border-wip-border rounded-lg p-6 max-w-md mx-4 shadow-lg">
+              <h3 className="text-lg font-bold text-wip-heading mb-2">Delete Post?</h3>
+              <p className="text-wip-muted mb-6">
+                Are you sure you want to permanently delete &quot;{showDeleteConfirm.title}&quot;? This cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowDeleteConfirm(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleDeleteConfirm}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </main>

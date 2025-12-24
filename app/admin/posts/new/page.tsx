@@ -3,18 +3,22 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { getSession } from '@/lib/auth'
 import { createBrowserClient } from '@/lib/supabase'
+import { Button } from '@/components/Button'
+import { ToastContainer } from '@/components/Toast'
+import { useToast } from '@/lib/useToast'
 import type { Book } from '@/lib/supabase'
 
 export default function NewPostPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const router = useRouter()
+  const { toasts, showToast, removeToast } = useToast()
 
   // Form state
   const [title, setTitle] = useState('')
@@ -49,12 +53,11 @@ export default function NewPostPage() {
 
   const handleSave = async () => {
     if (!title || !slug || !content) {
-      setMessage({ type: 'error', text: 'Please fill in title, slug, and content' })
+      showToast('Please fill in title, slug, and content', 'error')
       return
     }
 
     setSaving(true)
-    setMessage(null)
 
     const supabase = createBrowserClient()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,9 +75,10 @@ export default function NewPostPage() {
       .single()
 
     if (error) {
-      setMessage({ type: 'error', text: 'Failed to create: ' + error.message })
+      showToast('Failed to create: ' + error.message, 'error')
       setSaving(false)
     } else {
+      showToast('Post created successfully!', 'success')
       router.push(`/admin/posts/${data.id}`)
     }
   }
@@ -117,10 +121,10 @@ export default function NewPostPage() {
 
       const { data } = supabase.storage.from('post-images').getPublicUrl(filePath)
       setInfographicUrl(data.publicUrl)
-      setMessage({ type: 'success', text: 'Infographic uploaded successfully' })
+      showToast('Infographic uploaded successfully', 'success')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      setMessage({ type: 'error', text: 'Error uploading infographic: ' + error.message })
+      showToast('Error uploading infographic: ' + error.message, 'error')
     } finally {
       setUploadingInfo(false)
     }
@@ -129,54 +133,52 @@ export default function NewPostPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-wip-dark flex items-center justify-center">
-        <div className="text-wip-muted">Loading...</div>
+        <div className="flex items-center gap-3 text-wip-muted">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading...</span>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-wip-dark">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       {/* Header */}
       <header className="border-b border-wip-border bg-wip-card sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
-              ← Back to Dashboard
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
+          <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
+            ← Back to Dashboard
+          </Link>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setShowPreview(!showPreview)}
-              className="px-4 py-2 bg-wip-dark border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
             >
               {showPreview ? 'Edit' : 'Preview'}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm disabled:opacity-50"
             >
-              {saving ? 'Creating...' : 'Create Post'}
-            </button>
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Creating...
+                </>
+              ) : (
+                'Create Post'
+              )}
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* Message */}
-      {message && (
-        <div className={`max-w-6xl mx-auto px-4 mt-4`}>
-          <div className={`px-4 py-3 rounded-lg text-sm ${message.type === 'success'
-            ? 'bg-green-500/10 border border-green-500/50 text-green-400'
-            : 'bg-red-500/10 border border-red-500/50 text-red-400'
-            }`}>
-            {message.text}
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-black mb-6">Create New Post</h1>
+        <h1 className="text-2xl font-bold text-black mb-12">Create New Post</h1>
 
         {showPreview ? (
           /* Preview Mode */
@@ -189,9 +191,9 @@ export default function NewPostPage() {
           </div>
         ) : (
           /* Edit Mode */
-          <div className="space-y-6">
+          <div className="space-y-12">
             {/* Basic Info */}
-            <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
+            <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-5">
               <h2 className="text-lg font-semibold text-black mb-4">Post Details</h2>
 
               <div>
@@ -299,7 +301,7 @@ export default function NewPostPage() {
               {books.length === 0 ? (
                 <p className="text-wip-muted text-sm">No book recommendations yet. Click &quot;Add Book&quot; to add one.</p>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {books.map((book, index) => (
                     <div key={index} className="bg-wip-dark border border-wip-border rounded-lg p-4 space-y-3">
                       <div className="flex items-center justify-between">

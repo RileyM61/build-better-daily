@@ -3,10 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { getSession } from '@/lib/auth'
 import { createBrowserClient } from '@/lib/supabase'
+import { Button } from '@/components/Button'
+import { ToastContainer } from '@/components/Toast'
+import { useToast } from '@/lib/useToast'
 import type { Post, Book, WeeklyEmail } from '@/lib/supabase'
 
 export default function EditPostPage() {
@@ -15,8 +19,8 @@ export default function EditPostPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const router = useRouter()
+  const { toasts, showToast, removeToast } = useToast()
 
   // Form state
   const [title, setTitle] = useState('')
@@ -80,7 +84,6 @@ export default function EditPostPage() {
 
   const handleSave = async () => {
     setSaving(true)
-    setMessage(null)
 
     const supabase = createBrowserClient()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,9 +100,9 @@ export default function EditPostPage() {
       .eq('id', id)
 
     if (error) {
-      setMessage({ type: 'error', text: 'Failed to save: ' + error.message })
+      showToast('Failed to save: ' + error.message, 'error')
     } else {
-      setMessage({ type: 'success', text: 'Post saved successfully!' })
+      showToast('Post saved successfully!', 'success')
     }
     setSaving(false)
   }
@@ -108,7 +111,6 @@ export default function EditPostPage() {
     if (!email) return
     
     setSaving(true)
-    setMessage(null)
 
     const supabase = createBrowserClient()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,21 +126,21 @@ export default function EditPostPage() {
       .eq('id', email.id)
 
     if (error) {
-      setMessage({ type: 'error', text: 'Failed to save email: ' + error.message })
+      showToast('Failed to save email: ' + error.message, 'error')
     } else {
-      setMessage({ type: 'success', text: 'Email saved successfully!' })
+      showToast('Email saved successfully!', 'success')
     }
     setSaving(false)
   }
 
   const handleSendEmails = async () => {
     if (!published) {
-      alert('Post must be published before sending emails')
+      showToast('Post must be published before sending emails', 'error')
       return
     }
 
     if (!email) {
-      alert('Weekly email must exist before sending')
+      showToast('Weekly email must exist before sending', 'error')
       return
     }
 
@@ -147,7 +149,6 @@ export default function EditPostPage() {
     }
 
     setSendingEmails(true)
-    setMessage(null)
 
     try {
       const secret = prompt('Enter your CRON_SECRET to send emails:')
@@ -169,24 +170,16 @@ export default function EditPostPage() {
       let messageText = `Emails sent successfully! Sent to ${data.sent} subscribers`
       if (data.failed > 0) {
         messageText += ` (${data.failed} failed)`
-        if (data.failures && data.failures.length > 0) {
-          const failureDetails = data.failures.map((f: { email: string; error: string }) => 
-            `${f.email}: ${f.error}`
-          ).join('; ')
-          messageText += `\n\nFailures:\n${failureDetails}`
-        }
+        showToast(messageText, data.failed > 0 ? 'error' : 'success', 7000)
+      } else {
+        showToast(messageText, 'success')
       }
-      
-      setMessage({
-        type: data.failed > 0 ? 'error' : 'success',
-        text: messageText
-      })
 
       // Refresh email to get updated sent status
       fetchPost()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'
-      setMessage({ type: 'error', text: `Failed to send emails: ${message}` })
+      showToast(`Failed to send emails: ${message}`, 'error')
     } finally {
       setSendingEmails(false)
     }
@@ -230,10 +223,10 @@ export default function EditPostPage() {
 
       const { data } = supabase.storage.from('post-images').getPublicUrl(filePath)
       setInfographicUrl(data.publicUrl)
-      setMessage({ type: 'success', text: 'Infographic uploaded successfully' })
+      showToast('Infographic uploaded successfully', 'success')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      setMessage({ type: 'error', text: 'Error uploading infographic: ' + error.message })
+      showToast('Error uploading infographic: ' + error.message, 'error')
     } finally {
       setUploadingInfo(false)
     }
@@ -242,89 +235,104 @@ export default function EditPostPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-wip-dark flex items-center justify-center">
-        <div className="text-wip-muted">Loading...</div>
+        <div className="flex items-center gap-3 text-wip-muted">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading post...</span>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-wip-dark">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       {/* Header */}
       <header className="border-b border-wip-border bg-wip-card sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
-              ← Back to Dashboard
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
+          <Link href="/admin/dashboard" className="text-wip-muted hover:text-black transition-colors">
+            ← Back to Dashboard
+          </Link>
+          <div className="flex items-center gap-2">
             {email && (
-              <>
-                <button
-                  onClick={() => setShowEmail(!showEmail)}
-                  className="px-4 py-2 bg-wip-card border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
-                >
-                  {showEmail ? 'Hide Email' : 'View Email'}
-                </button>
-                {published && !email.sent && (
-                  <button
-                    onClick={handleSendEmails}
-                    disabled={sendingEmails}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-black font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {sendingEmails ? 'Sending...' : 'Send Weekly Emails'}
-                  </button>
-                )}
-                {email.sent && (
-                  <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm border border-green-500/30">
-                    ✓ Sent ({email.sent_count || 0} subscribers)
-                  </span>
-                )}
-              </>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowEmail(!showEmail)}
+              >
+                {showEmail ? 'Hide Email' : 'View Email'}
+              </Button>
             )}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setShowPreview(!showPreview)}
-              className="px-4 py-2 bg-wip-dark border border-wip-border text-wip-text rounded-lg hover:border-wip-gold/50 transition-colors text-sm"
             >
               {showPreview ? 'Edit' : 'Preview'}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm disabled:opacity-50"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
           </div>
         </div>
       </header>
-
-      {/* Message */}
-      {message && (
-        <div className={`max-w-6xl mx-auto px-4 mt-4`}>
-          <div className={`px-4 py-3 rounded-lg text-sm ${message.type === 'success'
-            ? 'bg-green-500/10 border border-green-500/50 text-green-400'
-            : 'bg-red-500/10 border border-red-500/50 text-red-400'
-            }`}>
-            {message.text}
-          </div>
-        </div>
-      )}
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Email Editor */}
         {showEmail && email && (
-          <div className="bg-wip-card border border-wip-border rounded-xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-black">Weekly Email Companion</h2>
-              <button
+          <div className="bg-wip-card border border-wip-border rounded-xl p-6 mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-semibold text-black mb-2">Weekly Email Companion</h2>
+                {published && !email.sent && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleSendEmails}
+                    disabled={sendingEmails}
+                  >
+                    {sendingEmails ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Weekly Emails'
+                    )}
+                  </Button>
+                )}
+                {email.sent && (
+                  <span className="inline-flex items-center px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm border border-green-500/30">
+                    ✓ Sent ({email.sent_count || 0} subscribers)
+                  </span>
+                )}
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={handleSaveEmail}
                 disabled={saving}
-                className="px-4 py-2 bg-wip-gold hover:bg-wip-gold-dark text-wip-dark font-medium rounded-lg transition-colors text-sm disabled:opacity-50"
               >
-                {saving ? 'Saving...' : 'Save Email'}
-              </button>
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Email'
+                )}
+              </Button>
             </div>
 
             <div className="space-y-4">
@@ -403,10 +411,10 @@ export default function EditPostPage() {
           </div>
         ) : (
           /* Edit Mode */
-          <div className="space-y-6">
+          <div className="space-y-12">
             {/* Basic Info */}
-            <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-black mb-4">Post Details</h2>
+            <div className="bg-wip-card border border-wip-border rounded-xl p-6 space-y-5">
+              <h2 className="text-lg font-semibold text-black mb-6">Post Details</h2>
 
               <div>
                 <label className="block text-sm font-medium text-wip-text mb-2">Title</label>
