@@ -58,9 +58,8 @@ export default function SubscriptionInvite() {
                         I send one short note each week to help you bring this into your leadership meeting and turn it into action.
                     </p>
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => setIsModalOpen(true)}
-                        className="text-wip-heading"
                     >
                         Get the weekly leadership note
                     </Button>
